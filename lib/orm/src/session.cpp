@@ -47,8 +47,13 @@ namespace session {
 		beginTransaction();
 	}
 
-	ConnectionMaker::ConnectionMaker(const std::string& uri):
-		db(std::make_unique<database::Database>(uri)) {}
+	ConnectionMaker::ConnectionMaker(const std::string& uri) {
+		try {
+			db = std::make_unique<database::Database>(uri);
+		} catch (std::exception& e) {
+			std::cerr << "Error connecting to database: " << e.what() << std::endl;
+		}
+	}
 
 	std::unique_ptr<Session> ConnectionMaker::getSession() const {
 		return std::make_unique<Session>(*db);

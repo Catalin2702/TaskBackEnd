@@ -36,7 +36,7 @@ namespace session {
 		model(model), isBatch(false), session(session) {}
 	template <typename M>
 	Query<M>::Query(const std::vector<M>& models, Session* session):
-		models(models), isBatch(true), session(session) {
+		isBatch(true), models(models), session(session) {
 		if (models.empty())
 			throw std::invalid_argument("Cannot create batch query with empty models");
 		model = models.front();
@@ -68,19 +68,18 @@ namespace session {
 			throw std::runtime_error("No results found");
 		return results.front();
 	}
+	template <typename M>
+	std::vector<M> Query<M>::limit(const int limit) {
+		finalQuery = buildSelectQuery(limit);
+		return session->execute(*this);
+	}
 	template<typename M>
-	std::vector<int> Query<M>::insert() {
+	std::vector<M> Query<M>::insert() {
 		if (isBatch)
 			finalQuery = buildBatchInsertQuery();
 		else
 			finalQuery = buildSingleInsertQuery();
-		const pqxx::result result = session->execute(finalQuery);
-		std::vector<int> ids;
-		ids.reserve(result.size());
-		for (const auto& row : result) {
-			ids.push_back(row[0].as<int>());
-		}
-		return ids;
+		return session->execute(*this);
 	}
 	template<typename M>
 	M Query<M>::update(const std::vector<std::string>& columns) {
@@ -90,6 +89,18 @@ namespace session {
 			throw std::runtime_error("No results found");
 		return results.front();
 	}
+	template <typename M>
+	std::vector<int> Query<M>::remove() {
+		finalQuery = buildDeleteQuery();
+		const pqxx::result result = session->execute(finalQuery);
+		std::vector<int> ids;
+		ids.reserve(result.size());
+		for (const auto& row : result) {
+			ids.push_back(row[0].as<int>());
+		}
+		return ids;
+	}
+
 	template <typename M>
 	std::string Query<M>::toString() const {
 		return finalQuery;
@@ -120,7 +131,7 @@ namespace session {
 		return columns;
 	}
 	template <typename M>
-	std::string Query<M>::buildSelectQuery(const int limit) const {
+	std::string Query<M>::buildSelectQuery(const int limit) {
 		std::ostringstream queryString;
 		queryString << "SELECT " << tools::join(getColumnNames(), ", ") << std::endl;
 		queryString << "FROM " << model.getTableName() << std::endl;
@@ -160,7 +171,7 @@ namespace session {
 			  << " (" << tools::join(columnNames, ", ")
 			  << ")\nVALUES\n("
 			  << tools::join(columnValues, ", ")
-			  << ")\nRETURNING " << primaryKey->getName() << ";";
+			  << ")\nRETURNING *;";
 
 		return query.str();
 	}
@@ -200,10 +211,6 @@ namespace session {
 				if (column->isPrimaryKey() && column->getType() == value::SqlType::Serial) {
 					continue;
 				}
-				if (!column->isNullable() && column->isPtrNull()) {
-					throw std::invalid_argument("ColumnBase " + column->getName() +
-												" is not nullable in a batch insert model");
-				}
 				values.push_back(column->getValueAsString());
 			}
 			query << tools::join(values, ", ");
@@ -211,7 +218,7 @@ namespace session {
 			firstModel = false;
 		}
 
-		query << "\nRETURNING " << primaryKey->getName() << ";";
+		query << "\nRETURNING *;";
 
 		std::cout << "\n\n" << query.str() << "\n\n";
 
@@ -263,5 +270,32 @@ namespace session {
 
 		return query.str();
 	}
+	template <typename M>
+	std::string Query<M>::buildDeleteQuery() {
+		std::ostringstream query;
+		query << "DELETE FROM " << model.getTableName() << "\nWHERE ";
+		const auto primaryKey = getPrimaryKey();
+		if (condition.empty()) {
+			if (not primaryKey) {
+				throw std::runtime_error("No primary key found");
+			}
+			if (isBatch) {
+				std::vector<std::string> ids;
+				ids.reserve(models.size());
+				for (auto& model : models) {
+					ids.push_back(model.getPrimaryKey()->getValueAsString());
+				}
+				query << primaryKey->getName() << " IN (" << tools::join(ids, ", ") << ")";
+			} else {
+				query << primaryKey->getName() << " = " << primaryKey->getValueAsString();
+			}
+		} else {
+			query << condition;
+		}
+		query << "\nRETURNING " << primaryKey->getName() << ";";
 
+		std::cout << "\n\n" << query.str() << "\n\n";
+
+		return query.str();
+	}
 }

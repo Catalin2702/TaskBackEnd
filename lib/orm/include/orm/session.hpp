@@ -59,9 +59,10 @@ namespace session {
 
 		[[nodiscard]] std::vector<M> all();
 		[[nodiscard]] M first();
-		[[nodiscard]] std::vector<int> insert();
+		[[nodiscard]] std::vector<M> limit(const int limit);
+		[[nodiscard]] std::vector<M> insert();
 		[[nodiscard]] M update(const std::vector<std::string>& columns = {});
-		[[nodiscard]] Query<M> remove() const;
+		[[nodiscard]] std::vector<int> remove();
 		[[nodiscard]] std::string toString() const;
 		explicit operator std::string() const;
 
@@ -70,11 +71,11 @@ namespace session {
 		[[nodiscard]] std::vector<std::shared_ptr<column::ColumnBase>> getDirtyColumns() const;
 		[[nodiscard]] std::vector<std::string> getColumnNames() const;
 		[[nodiscard]] std::shared_ptr<column::ColumnBase> getPrimaryKey();
-		[[nodiscard]] std::string buildSelectQuery(const int limit = 0) const;
+		[[nodiscard]] std::string buildSelectQuery(const int limit = 0);
 		[[nodiscard]] std::string buildSingleInsertQuery() const;
 		[[nodiscard]] std::string buildBatchInsertQuery() const;
 		[[nodiscard]] std::string buildUpdateQuery(const std::vector<std::string>& columns = {});
-		[[nodiscard]] std::string buildDeleteQuery() const;
+		[[nodiscard]] std::string buildDeleteQuery();
 		std::string condition;
 		std::string finalQuery;
 		bool isBatch;

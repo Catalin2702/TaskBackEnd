@@ -13,7 +13,7 @@ namespace value {
 	SqlType SqlValue::getType() const {
 		return type;
 	}
-	bool SqlValue::isStringLike() {
+	constexpr bool SqlValue::isStringLike() {
 		return false;
 	}
 
@@ -52,7 +52,7 @@ namespace value {
 	void StringValue::setValue(const std::string &value) {
 		this->value = value;
 	}
-	bool StringValue::isStringLike() {
+	constexpr bool StringValue::isStringLike() {
 		return true;
 	}
 
@@ -67,7 +67,7 @@ namespace value {
 	void TextValue::setValue(const std::string &value) {
 		this->value = value;
 	}
-	bool TextValue::isStringLike() {
+	constexpr bool TextValue::isStringLike() {
 		return true;
 	}
 
@@ -102,7 +102,7 @@ namespace value {
 	void DateValue::setValue(const std::string &dateStr, const std::string &format) {
 		this->value = tools::stringToDate(dateStr, format);
 	}
-	bool DateValue::isStringLike() {
+	constexpr bool DateValue::isStringLike() {
 		return true;
 	}
 
@@ -125,7 +125,7 @@ namespace value {
 	void TimeValue::setValue(const std::string &timeStr, const std::string &format) {
 		this->value = tools::stringToTime(timeStr, format);
 	}
-	bool TimeValue::isStringLike() {
+	constexpr bool TimeValue::isStringLike() {
 		return true;
 	}
 
@@ -148,7 +148,7 @@ namespace value {
 	void DateTimeValue::setValue(const std::string &dateTimeStr, const std::string &format) {
 		this->value = tools::stringToDateTime(dateTimeStr, format);
 	}
-	bool DateTimeValue::isStringLike() {
+	constexpr bool DateTimeValue::isStringLike() {
 		return true;
 	}
 
@@ -171,7 +171,7 @@ namespace value {
 	void TimestampValue::setValue(const std::string &timestampStr, const std::string &format) {
 		this->value = tools::stringToTimestamp(timestampStr, format);
 	}
-	bool TimestampValue::isStringLike() {
+	constexpr bool TimestampValue::isStringLike() {
 		return true;
 	}
 
@@ -262,7 +262,7 @@ namespace column {
 	bool ColumnBase::isPtrNotNull() const {
 		return getPtr() != nullptr;
 	}
-	bool ColumnBase::isStringLike() {
+	constexpr bool ColumnBase::isStringLike() {
 		return false;
 	}
 	condition::Condition<std::string> ColumnBase::isNull() const {
@@ -281,7 +281,7 @@ namespace column {
 		return dirty;
 	}
 	void ColumnBase::markDirty() {
-		if (isPrimaryKey())
+		if (isDirty() and isPrimaryKey())
 			throw std::runtime_error(toString() + " is a primary key and cannot be modified");
 		setDirty(true);
 	}
@@ -521,8 +521,8 @@ namespace column {
 	std::unique_ptr<ColumnBase> StringColumn::clone() const {
 		return std::make_unique<StringColumn>(*this);
 	}
-	bool StringColumn::isStringLike() {
-		return false;
+	constexpr bool StringColumn::isStringLike() {
+		return true;
 	}
 	StringColumn& StringColumn::operator = (const std::string& value) {
 		setValue(value);
@@ -626,8 +626,8 @@ namespace column {
 	std::unique_ptr<ColumnBase> TextColumn::clone() const {
 		return std::make_unique<TextColumn>(*this);
 	}
-	bool TextColumn::isStringLike() {
-		return false;
+	constexpr bool TextColumn::isStringLike() {
+		return true;
 	}
 	TextColumn& TextColumn::operator = (const std::string& value) {
 		setValue(value);
@@ -827,8 +827,8 @@ namespace column {
 	std::unique_ptr<ColumnBase> DateColumn::clone() const {
 		return std::make_unique<DateColumn>(*this);
 	}
-	bool DateColumn::isStringLike() {
-		return false;
+	constexpr bool DateColumn::isStringLike() {
+		return true;
 	}
 	DateColumn& DateColumn::operator = (const std::chrono::system_clock::time_point &value) {
 		setValue(value);
@@ -979,8 +979,8 @@ namespace column {
 	std::unique_ptr<ColumnBase> TimeColumn::clone() const {
 		return std::make_unique<TimeColumn>(*this);
 	}
-	bool TimeColumn::isStringLike() {
-		return false;
+	constexpr bool TimeColumn::isStringLike() {
+		return true;
 	}
 	TimeColumn& TimeColumn::operator = (const std::chrono::seconds &value) {
 		setValue(value);
@@ -1131,8 +1131,8 @@ namespace column {
 	std::unique_ptr<ColumnBase> DateTimeColumn::clone() const {
 		return std::make_unique<DateTimeColumn>(*this);
 	}
-	bool DateTimeColumn::isStringLike() {
-		return false;
+	constexpr bool DateTimeColumn::isStringLike() {
+		return true;
 	}
 	DateTimeColumn& DateTimeColumn::operator = (const std::chrono::system_clock::time_point &value) {
 		setValue(value);
@@ -1283,8 +1283,8 @@ namespace column {
 	std::unique_ptr<ColumnBase> TimestampColumn::clone() const {
 		return std::make_unique<TimestampColumn>(*this);
 	}
-	bool TimestampColumn::isStringLike() {
-		return false;
+	constexpr bool TimestampColumn::isStringLike() {
+		return true;
 	}
 	TimestampColumn& TimestampColumn::operator = (const std::chrono::system_clock::time_point &value) {
 		setValue(value);

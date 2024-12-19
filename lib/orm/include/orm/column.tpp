@@ -36,7 +36,7 @@ namespace value {
 			throw std::invalid_argument("Value " + toString() + " not in mapping.");
 	}
 	template<typename T>
-	bool EnumValue<T>::isStringLike() {
+	constexpr bool EnumValue<T>::isStringLike() {
 		static_assert(std::is_same_v<SqlValue, T>, "EnumValue must derive from SqlValue");
 		return T::isStringLike();
 	}
@@ -231,7 +231,7 @@ namespace column {
 		return std::make_unique<EnumColumn<T>>(*this);
 	}
 	template <typename T>
-	bool EnumColumn<T>::isStringLike() {
+	constexpr bool EnumColumn<T>::isStringLike() {
 		return T::isStringLike();
 	}
 
@@ -361,39 +361,37 @@ namespace column {
 		column->setNull(init);
 	}
 	template<typename T>
-	template<typename U>
-	typename std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(), condition::Condition<std::string>>
-	ColumnRef<T>::in(const std::vector<std::string>& values) const {
+	[[nodiscard]] static constexpr bool isStringLike() {
+		return T::isStringLike();
+	}
+	template<typename T>
+	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
+	condition::Condition<std::string> ColumnRef<T>::in(const std::vector<std::string>& values) const {
 		return column->in(values);
 	}
 	template<typename T>
-	template<typename U>
-	typename std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(), condition::Condition<std::string>>
-	ColumnRef<T>::notIn(const std::vector<std::string>& values) const {
+	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
+	condition::Condition<std::string> ColumnRef<T>::notIn(const std::vector<std::string>& values) const {
 		return column->notIn(values);
 	}
 	template<typename T>
-	template<typename U>
-	typename std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(), condition::Condition<std::string>>
-	ColumnRef<T>::like(const std::string& value) const {
+	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
+	condition::Condition<std::string> ColumnRef<T>::like(const std::string& value) const {
 		return column->like(value);
 	}
 	template<typename T>
-	template<typename U>
-	typename std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(), condition::Condition<std::string>>
-	ColumnRef<T>::notLike(const std::string& value) const {
+	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
+	condition::Condition<std::string> ColumnRef<T>::notLike(const std::string& value) const {
 		return column->notLike(value);
 	}
 	template<typename T>
-	template<typename U>
-	typename std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(), condition::Condition<std::string>>
-	ColumnRef<T>::iLike(const std::string& value) const {
+	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
+	condition::Condition<std::string> ColumnRef<T>::iLike(const std::string& value) const {
 		return column->iLike(value);
 	}
 	template<typename T>
-	template<typename U>
-	typename std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(), condition::Condition<std::string>>
-	ColumnRef<T>::notILike(const std::string& value) const {
+	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
+	condition::Condition<std::string> ColumnRef<T>::notILike(const std::string& value) const {
 		return column->notILike(value);
 	}
 

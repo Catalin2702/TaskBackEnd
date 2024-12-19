@@ -69,7 +69,7 @@ namespace value {
 		virtual ~SqlValue() = default;
 		[[nodiscard]] virtual std::string toString() const = 0;
 		[[nodiscard]] SqlType getType() const;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 	private:
 		SqlType type;
 	};
@@ -102,7 +102,7 @@ namespace value {
 		[[nodiscard]] std::string toString() const override;
 		[[nodiscard]] std::string* getPtr();
 		void setValue(const std::string& value);
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		
 	private:
 		std::string value;
@@ -114,7 +114,7 @@ namespace value {
 		[[nodiscard]] std::string toString() const override;
 		[[nodiscard]] std::string* getPtr();
 		void setValue(const std::string& value);
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		
 	private:
 		std::string value;
@@ -140,7 +140,7 @@ namespace value {
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtr();
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& dateStr, const std::string& format = "%Y-%m-%d");
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		
 	private:
 		std::chrono::system_clock::time_point value;
@@ -155,7 +155,7 @@ namespace value {
 		[[nodiscard]] std::chrono::seconds* getPtr();
 		void setValue(const std::chrono::seconds& value);
 		void setValue(const std::string& timeStr, const std::string& format = "%H:%M:%S");
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		
 	private:
 		std::chrono::seconds value;
@@ -170,7 +170,7 @@ namespace value {
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtr();
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& dateTimeStr, const std::string& format = "%Y-%m-%d %H:%M:%S");
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		
 	private:
 		std::chrono::system_clock::time_point value;
@@ -185,7 +185,7 @@ namespace value {
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtr();
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& timestampStr, const std::string& format = "%Y-%m-%d %H:%M:%S");
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		
 	private:
 		std::chrono::system_clock::time_point value;
@@ -213,7 +213,7 @@ namespace value {
 		[[nodiscard]] T* getPtr();
 		void setValue(const T value);
 		void setMapping(const std::map<T, std::string>& mapping, const T* value = nullptr);
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		
 	private:
 		T value;
@@ -345,7 +345,7 @@ namespace column {
 		[[nodiscard]] virtual std::unique_ptr<ColumnBase> clone() const = 0;
 		[[nodiscard]] bool isPtrNull() const;
 		[[nodiscard]] bool isPtrNotNull() const;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		bool isDirty() const;
 		void markDirty();
 		void clearDirty();
@@ -438,7 +438,7 @@ namespace column {
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		StringColumn& operator = (const std::string& value);
 		StringColumn& operator = (const char* value);
 		condition::Condition<std::string> operator == (const std::string& value) const;
@@ -474,7 +474,7 @@ namespace column {
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		TextColumn& operator = (const std::string& value);
 		TextColumn& operator = (const char* value);
 		condition::Condition<std::string> operator == (const std::string& value) const;
@@ -540,7 +540,7 @@ namespace column {
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		DateColumn& operator = (const std::chrono::system_clock::time_point& value);
 		DateColumn& operator = (const std::string& dateStr);
 		DateColumn& operator = (const char* dateStr);
@@ -586,7 +586,7 @@ namespace column {
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		TimeColumn& operator = (const std::chrono::seconds& value);
 		TimeColumn& operator = (const std::string& timeStr);
 		TimeColumn& operator = (const char* timeStr);
@@ -632,7 +632,7 @@ namespace column {
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		DateTimeColumn& operator = (const std::chrono::system_clock::time_point& value);
 		DateTimeColumn& operator = (const std::string& dateTimeStr);
 		DateTimeColumn& operator = (const char* dateTimeStr);
@@ -678,7 +678,7 @@ namespace column {
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		TimestampColumn& operator = (const std::chrono::system_clock::time_point& value);
 		TimestampColumn& operator = (const std::string& timestampStr);
 		TimestampColumn& operator = (const char* timestampStr);
@@ -759,7 +759,7 @@ namespace column {
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		[[nodiscard]] static bool isStringLike();
+		[[nodiscard]] static constexpr bool isStringLike();
 		EnumColumn& operator = (const T value);
 		condition::Condition<std::string> operator == (const T value) const;
 		condition::Condition<std::string> operator == (const std::string& value) const;
@@ -811,33 +811,21 @@ namespace column {
 		value_type* getPtrValue() const;
 		[[nodiscard]] std::string getValueAsString() const;
 		void setNull(const bool init = false);
+		[[nodiscard]] static constexpr bool isStringLike();
 
 		// Metodi specifici per stringhe
-		template<typename U = T>
-		std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(),
-			condition::Condition<std::string>>
-		in(const std::vector<std::string>& values) const;
-
-		template<typename U = T>
-		std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(),
-			condition::Condition<std::string>>
-		notIn(const std::vector<std::string>& values) const;
-		template<typename U = T>
-		std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(),
-			condition::Condition<std::string>>
-		like(const std::string& value) const;
-		template<typename U = T>
-		std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(),
-			condition::Condition<std::string>>
-		notLike(const std::string& value) const;
-		template<typename U = T>
-		std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(),
-			condition::Condition<std::string>>
-		iLike(const std::string& value) const;
-		template<typename U = T>
-		std::enable_if_t<std::is_base_of_v<ColumnBase, U> && U::isStringLike(),
-			condition::Condition<std::string>>
-		notILike(const std::string& value) const;
+		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
+		[[nodiscard]] condition::Condition<std::string> in(const std::vector<std::string>& values) const;
+		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
+		[[nodiscard]] condition::Condition<std::string> notIn(const std::vector<std::string>& values) const;
+		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
+		[[nodiscard]] condition::Condition<std::string> like(const std::string& value) const;
+		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
+		[[nodiscard]] condition::Condition<std::string> notLike(const std::string& value) const;
+		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
+		[[nodiscard]] condition::Condition<std::string> iLike(const std::string& value) const;
+		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
+		[[nodiscard]] condition::Condition<std::string> notILike(const std::string& value) const;
 	};
 
 }

@@ -26,23 +26,40 @@ public:
 };
 
 int main() {
-	const User userModel;
 
 	const session::ConnectionMaker connectionMaker(DB_URI);
 
 	const auto session = connectionMaker.getSession();
 
-	const auto users = session->query(userModel).filter(userModel.email->iLike("%CATALIN%")).all();
-	auto user = users.front();
+	std::vector<User> insertUsers;
 
-	user.email = "catalin.chirosca@otconsulting.com";
-
-	const auto newUser = session->query(user).update();
-	session->commit();
-
-	for (const auto& column: newUser.getColumns()) {
-		std::cout << column->toString() << " " << column->getValueAsString() << std::endl;
+	try {
+		insertUsers = session->query(User()).all();
+	} catch (std::exception& e) {
+		std::cerr << "Query error: " << e.what() << std::endl;
 	}
+
+	for (const auto& user : insertUsers) {
+		for (const auto& column : user.getColumns()) {
+			std::cout << column->getFullName() << ": " << column->getValueAsString() << std::endl;
+		}
+	}
+
+	std::vector<int> ids;
+
+	try {
+		ids = session->query(insertUsers).remove();
+	} catch (std::exception& e) {
+		std::cerr << "Remove error: " << e.what() << std::endl;
+	}
+
+	std::cout << "Removed " << ids.size() << " users." << std::endl;
+
+	for (const auto& id : ids) {
+		std::cout << "Removed user with id: " << id << std::endl;
+	}
+
+	session->commit();
 
 	return 0;
 }
