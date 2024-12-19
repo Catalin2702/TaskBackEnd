@@ -33,22 +33,17 @@ int main() {
 	const auto session = connectionMaker.getSession();
 
 	const auto users = session->query(userModel).filter(userModel.email->iLike("%CATALIN%")).all();
-	for (const auto& user: users) {
-		for (const auto& column: user.getColumns()) {
-			std::cout << column->getName() << ": " << column->getValueAsString() << std::endl;
-		}
-	}
-	User newUser;
-	newUser.username = "catalin2702";
-	newUser.email = "catalin2702@gmail.com";
-	newUser.password_hash = "password";
+	auto user = users.front();
 
-	const auto insertIds = session->query(users).insert();
-	std::cout << "Ids: ";
-	for (const int id: insertIds) {
-		std::cout << id << " ";
-	}
+	user.email = "catalin.chirosca@otconsulting.com";
+
+	const auto newUser = session->query(user).update();
 	session->commit();
+
+	for (const auto& column: newUser.getColumns()) {
+		std::cout << column->toString() << " " << column->getValueAsString() << std::endl;
+	}
+
 	return 0;
 }
 

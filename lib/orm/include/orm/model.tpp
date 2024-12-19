@@ -10,7 +10,7 @@ namespace model {
 					"Can't use " + property->getName() + " as primary key in table " + getTableName() + ". " +
 					primaryKey->getName() + " has already been registered as a primary key."
 				);
-			this->primaryKey = property;
+			setPrimaryKey(property);
 		}
 		if (property->getTableName().empty()) property->setTableName(getTableName());
 		columns.push_back(property);

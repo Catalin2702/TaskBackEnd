@@ -13,14 +13,16 @@
 namespace model {
 	class Model {
 	public:
-		Model(const Model& other): tableName(other.tableName), columns(other.columns) {}
+		Model(const Model& other): tableName(other.tableName), columns(other.columns), primaryKey(other.primaryKey) {}
 		Model(Model&& other) noexcept = default;
 		explicit Model(std::string tableName): tableName(std::move(tableName)) {}
 		virtual ~Model() = default;
 		[[nodiscard]] std::string getTableName() const;
 		[[nodiscard]] const std::vector<std::shared_ptr<column::ColumnBase>>& getColumns() const;
-		[[nodiscard]] const column::ColumnBase* getPrimaryKey() const;
-		void setColumnsValues(const pqxx::row& row) const;
+		[[nodiscard]] std::vector<std::shared_ptr<column::ColumnBase>> getDirtyColumns() const;
+		[[nodiscard]] std::shared_ptr<column::ColumnBase> getPrimaryKey();
+		void setColumnsValues(const pqxx::row& row);
+		void setPrimaryKey(const std::shared_ptr<column::ColumnBase>& primaryKey);
 		Model& operator=(const Model& other);
 		Model& operator=(Model&& other) noexcept = default;
 	protected:

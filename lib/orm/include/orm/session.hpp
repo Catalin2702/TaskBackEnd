@@ -60,19 +60,20 @@ namespace session {
 		[[nodiscard]] std::vector<M> all();
 		[[nodiscard]] M first();
 		[[nodiscard]] std::vector<int> insert();
-		[[nodiscard]] Query<M> update() const;
-		[[nodiscard]] Query<M> update(const std::vector<std::string>& columns) const;
+		[[nodiscard]] M update(const std::vector<std::string>& columns = {});
 		[[nodiscard]] Query<M> remove() const;
 		[[nodiscard]] std::string toString() const;
 		explicit operator std::string() const;
 
 	private:
-		[[nodiscard]] std::vector < std::shared_ptr<column::ColumnBase>> getColumns() const;
+		[[nodiscard]] std::vector<std::shared_ptr<column::ColumnBase>> getColumns() const;
+		[[nodiscard]] std::vector<std::shared_ptr<column::ColumnBase>> getDirtyColumns() const;
 		[[nodiscard]] std::vector<std::string> getColumnNames() const;
+		[[nodiscard]] std::shared_ptr<column::ColumnBase> getPrimaryKey();
 		[[nodiscard]] std::string buildSelectQuery(const int limit = 0) const;
 		[[nodiscard]] std::string buildSingleInsertQuery() const;
 		[[nodiscard]] std::string buildBatchInsertQuery() const;
-		[[nodiscard]] std::string buildUpdateQuery() const;
+		[[nodiscard]] std::string buildUpdateQuery(const std::vector<std::string>& columns = {});
 		[[nodiscard]] std::string buildDeleteQuery() const;
 		std::string condition;
 		std::string finalQuery;

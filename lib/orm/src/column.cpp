@@ -277,10 +277,12 @@ namespace column {
 	void ColumnBase::setDirty(const bool dirty) {
 		this->dirty = dirty;
 	}
-	bool ColumnBase::getDirty() const {
+	bool ColumnBase::isDirty() const {
 		return dirty;
 	}
 	void ColumnBase::markDirty() {
+		if (isPrimaryKey())
+			throw std::runtime_error(toString() + " is a primary key and cannot be modified");
 		setDirty(true);
 	}
 	void ColumnBase::clearDirty() {
@@ -315,16 +317,18 @@ namespace column {
 			this->value = std::make_unique<value::SerialValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
-	void SerialColumn::setNull() {
+	void SerialColumn::setNull(const bool init) {
 		throw std::runtime_error(toString() + " cannot be null");
 	}
 	void SerialColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			throw std::runtime_error(toString() + " cannot be null");
 		value = std::make_unique<value::SerialValue>(*static_cast<const unsigned int*>(ptr));
+		markDirty();
 	}
-	void SerialColumn::setValueFromField(const pqxx::field& field) {
+	void SerialColumn::initValue(const pqxx::field& field) {
 		value = std::make_unique<value::SerialValue>(field.as<unsigned int>());
 	}
 	void* SerialColumn::getPtr() const {
@@ -390,21 +394,25 @@ namespace column {
 			this->value = std::make_unique<value::IntegerValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
-	void IntegerColumn::setNull() {
+	void IntegerColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void IntegerColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::IntegerValue>(*static_cast<const int*>(ptr));
+		markDirty();
 	}
-	void IntegerColumn::setValueFromField(const pqxx::field& field) {
+	void IntegerColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::IntegerValue>(field.as<int>());
 	}
@@ -477,11 +485,14 @@ namespace column {
 			this->value = std::make_unique<value::StringValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
-	void StringColumn::setNull() {
+	void StringColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void StringColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
@@ -492,10 +503,11 @@ namespace column {
 				throw std::invalid_argument("Value too long");
 			value = std::make_unique<value::StringValue>(val);
 		}
+		markDirty();
 	}
-	void StringColumn::setValueFromField(const pqxx::field& field) {
+	void StringColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else {
 			const auto val = field.as<std::string>();
 			if (val.length() > length)
@@ -580,6 +592,7 @@ namespace column {
 			this->value = std::make_unique<value::TextValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
 	std::string TextColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue()) {
@@ -587,20 +600,23 @@ namespace column {
 		}
 		return tools::format("", false, tools::SqlSpecialValue::NULL_VALUE);
 	}
-	void TextColumn::setNull() {
+	void TextColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void TextColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::TextValue>(*static_cast<const std::string*>(ptr));
+		markDirty();
 	}
-	void TextColumn::setValueFromField(const pqxx::field& field) {
+	void TextColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::TextValue>(field.as<std::string>());
 	}
@@ -686,21 +702,25 @@ namespace column {
 			this->value = std::make_unique<value::DecimalValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
-	void DecimalColumn::setNull() {
+	void DecimalColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void DecimalColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::DecimalValue>(*static_cast<const double*>(ptr));
+		markDirty();
 	}
-	void DecimalColumn::setValueFromField(const pqxx::field& field) {
+	void DecimalColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::DecimalValue>(field.as<double>());
 	}
@@ -772,27 +792,32 @@ namespace column {
 			this->value = std::make_unique<value::DateValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
 	void DateColumn::setValue(const std::string &dateStr, const std::string &format) {
 		if (not this->value)
 			this->value = std::make_unique<value::DateValue>(dateStr, format);
 		else
 			this->value->setValue(dateStr, format);
+		markDirty();
 	}
-	void DateColumn::setNull() {
+	void DateColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void DateColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::DateValue>(*static_cast<const std::chrono::system_clock::time_point*>(ptr));
+		markDirty();
 	}
-	void DateColumn::setValueFromField(const pqxx::field& field) {
+	void DateColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::DateValue>(field.as<std::string>());
 	}
@@ -919,27 +944,32 @@ namespace column {
 			this->value = std::make_unique<value::TimeValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
 	void TimeColumn::setValue(const std::string &timeStr, const std::string &format) {
 		if (not this->value)
 			this->value = std::make_unique<value::TimeValue>(timeStr, format);
 		else
 			this->value->setValue(timeStr, format);
+		markDirty();
 	}
-	void TimeColumn::setNull() {
+	void TimeColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void TimeColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::TimeValue>(*static_cast<const std::chrono::seconds*>(ptr));
+		markDirty();
 	}
-	void TimeColumn::setValueFromField(const pqxx::field& field) {
+	void TimeColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::TimeValue>(field.as<std::string>());
 	}
@@ -1066,27 +1096,32 @@ namespace column {
 			this->value = std::make_unique<value::DateTimeValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
 	void DateTimeColumn::setValue(const std::string &dateTimeStr, const std::string &format) {
 		if (not this->value)
 			this->value = std::make_unique<value::DateTimeValue>(dateTimeStr, format);
 		else
 			this->value->setValue(dateTimeStr, format);
+		markDirty();
 	}
-	void DateTimeColumn::setNull() {
+	void DateTimeColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void DateTimeColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::DateTimeValue>(*static_cast<const std::chrono::system_clock::time_point*>(ptr));
+		markDirty();
 	}
-	void DateTimeColumn::setValueFromField(const pqxx::field& field) {
+	void DateTimeColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::DateTimeValue>(field.as<std::string>());
 	}
@@ -1213,27 +1248,32 @@ namespace column {
 			this->value = std::make_unique<value::TimestampValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
 	void TimestampColumn::setValue(const std::string &timestampStr, const std::string &format) {
 		if (not this->value)
 			this->value = std::make_unique<value::TimestampValue>(timestampStr, format);
 		else
 			this->value->setValue(timestampStr, format);
+		markDirty();
 	}
-	void TimestampColumn::setNull() {
+	void TimestampColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void TimestampColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::TimestampValue>(*static_cast<const std::chrono::system_clock::time_point*>(ptr));
+		markDirty();
 	}
-	void TimestampColumn::setValueFromField(const pqxx::field& field) {
+	void TimestampColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::TimestampValue>(field.as<std::string>());
 	}
@@ -1356,27 +1396,32 @@ namespace column {
 			this->value = std::make_unique<value::BooleanValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
 	void BooleanColumn::setValue(const int value) {
 		if (not this->value)
 			this->value = std::make_unique<value::BooleanValue>(value);
 		else
 			this->value->setValue(value);
+		markDirty();
 	}
-	void BooleanColumn::setNull() {
+	void BooleanColumn::setNull(const bool init) {
 		if (not isNullable())
 			throw std::runtime_error(toString() + " is not nullable");
 		this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	void BooleanColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			setNull();
 		else
 			value = std::make_unique<value::BooleanValue>(*static_cast<const bool*>(ptr));
+		markDirty();
 	}
-	void BooleanColumn::setValueFromField(const pqxx::field& field) {
+	void BooleanColumn::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else
 			value = std::make_unique<value::BooleanValue>(field.as<bool>());
 	}

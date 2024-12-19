@@ -170,6 +170,7 @@ namespace column {
 		if (not this->value)
 			throw std::runtime_error("Enum value not set");
 		this->value->setValue(value);
+		markDirty();
 	}
 	template<typename T>
 	void EnumColumn<T>::setMapping(const std::map<T, std::string>& mapping, const T value) {
@@ -177,6 +178,7 @@ namespace column {
 			this->value = std::make_unique<value::EnumValue<T>>(mapping, value);
 		else
 			this->value->setMapping(mapping, value);
+		markDirty();
 	}
 	template <typename T>
 	std::string EnumColumn<T>::getValueAsString() const {
@@ -189,9 +191,11 @@ namespace column {
 		return "NULL";
 	}
 	template<typename T>
-	void EnumColumn<T>::setNull() {
+	void EnumColumn<T>::setNull(const bool init) {
 		if (this->value)
 			this->value.reset();
+		if (not init)
+			markDirty();
 	}
 	template<typename T>
 	void EnumColumn<T>::setValueFromPtr(const void* ptr) {
@@ -204,11 +208,12 @@ namespace column {
 			else
 				throw std::invalid_argument("Value not in mapping");
 		}
+		markDirty();
 	}
 	template<typename T>
-	void EnumColumn<T>::setValueFromField(const pqxx::field& field) {
+	void EnumColumn<T>::initValue(const pqxx::field& field) {
 		if (field.is_null())
-			setNull();
+			setNull(true);
 		else {
 			auto val = std::make_unique<value::EnumValue<T>>(field.as<T>());
 			if (getMapping().count(*val))
@@ -352,8 +357,8 @@ namespace column {
 		return column->getValueAsString();
 	}
 	template<typename T>
-	void ColumnRef<T>::setNull() {
-		column->setNull();
+	void ColumnRef<T>::setNull(const bool init) {
+		column->setNull(init);
 	}
 	template<typename T>
 	template<typename U>

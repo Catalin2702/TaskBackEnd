@@ -82,6 +82,14 @@ namespace session {
 		}
 		return ids;
 	}
+	template<typename M>
+	M Query<M>::update(const std::vector<std::string>& columns) {
+		finalQuery = buildUpdateQuery(columns);
+		const auto results = session->execute(*this);
+		if (results.empty())
+			throw std::runtime_error("No results found");
+		return results.front();
+	}
 	template <typename M>
 	std::string Query<M>::toString() const {
 		return finalQuery;
@@ -93,6 +101,14 @@ namespace session {
 	template<typename M>
 	std::vector<std::shared_ptr<column::ColumnBase>> Query<M>::getColumns() const {
 		return model.getColumns();
+	}
+	template<typename M>
+	std::vector<std::shared_ptr<column::ColumnBase>> Query<M>::getDirtyColumns() const {
+		return model.getDirtyColumns();
+	}
+	template<typename M>
+	std::shared_ptr<column::ColumnBase> Query<M>::getPrimaryKey() {
+		return model.getPrimaryKey();
 	}
 	template <typename M>
 	std::vector<std::string> Query<M>::getColumnNames() const {
@@ -116,31 +132,28 @@ namespace session {
 		return queryString.str();
 	}
 	template<typename M>
-std::string Query<M>::buildSingleInsertQuery() const {
+	std::string Query<M>::buildSingleInsertQuery() const {
 		const auto columns = getColumns();
-		std::vector<std::shared_ptr<column::ColumnBase>> insertColumns;
 		std::shared_ptr<column::ColumnBase> primaryKey;
+		std::vector<std::string> columnNames;
+		std::vector<std::string> columnValues;
 
-		insertColumns.reserve(columns.size());
+		columnNames.reserve(columns.size());
+		columnValues.reserve(columns.size());
+
 		for (const auto& column : columns) {
 			if (column->isPrimaryKey() && column->getType() == value::SqlType::Serial) {
 				primaryKey = column->clone();
 				continue;
 			}
-			insertColumns.push_back(column);
-		}
-
-		if (!primaryKey)
-			throw std::runtime_error("No serial primary key found");
-
-		std::vector<std::string> columnNames;
-		std::vector<std::string> columnValues;
-		columnNames.reserve(insertColumns.size());
-		columnValues.reserve(insertColumns.size());
-		for (const auto& column : insertColumns) {
 			columnNames.push_back(column->getName());
 			columnValues.push_back(column->getValueAsString());
 		}
+		columnNames.shrink_to_fit();
+		columnValues.shrink_to_fit();
+
+		if (not primaryKey)
+			throw std::runtime_error("No primary key found!");
 
 		std::ostringstream query;
 		query << "INSERT INTO " << model.getTableName()
@@ -151,38 +164,34 @@ std::string Query<M>::buildSingleInsertQuery() const {
 
 		return query.str();
 	}
-	template<typename M>
+	template <typename M>
 	std::string Query<M>::buildBatchInsertQuery() const {
 		const auto columns = getColumns();
 		std::vector<std::shared_ptr<column::ColumnBase>> insertColumns;
+		std::vector<std::string> columnNames;
 		std::shared_ptr<column::ColumnBase> primaryKey;
 
 		insertColumns.reserve(columns.size());
+		columnNames.reserve(columns.size());
 		for (const auto& column : columns) {
 			if (column->isPrimaryKey() && column->getType() == value::SqlType::Serial) {
 				primaryKey = column->clone();
 				continue;
 			}
 			insertColumns.push_back(column);
-		}
-
-		if (!primaryKey)
-			throw std::runtime_error("No serial primary key found");
-
-		std::vector<std::string> columnNames;
-		columnNames.reserve(insertColumns.size());
-		for (const auto& column : insertColumns) {
 			columnNames.push_back(column->getName());
 		}
 
+		if (!primaryKey)
+			throw std::runtime_error("No primary key found");
+
 		std::ostringstream query;
-		query << "INSERT INTO " << model.getTableName() 
-			  << " (" << tools::join(columnNames, ", ") 
-			  << ")\nVALUES\n";
+		query << "INSERT INTO " << model.getTableName() << " (" << tools::join(columnNames, ", ") << ")\nVALUES\n";
 
 		bool firstModel = true;
 		for (const auto& currentModel : models) {
-			if (!firstModel) query << ",\n";
+			if (!firstModel)
+				query << ",\n";
 			query << "(";
 			const auto& currentColumns = currentModel.getColumns();
 			std::vector<std::string> values;
@@ -192,10 +201,8 @@ std::string Query<M>::buildSingleInsertQuery() const {
 					continue;
 				}
 				if (!column->isNullable() && column->isPtrNull()) {
-					throw std::invalid_argument(
-						"ColumnBase " + column->getName() +
-						" is not nullable in a batch insert model"
-					);
+					throw std::invalid_argument("ColumnBase " + column->getName() +
+												" is not nullable in a batch insert model");
 				}
 				values.push_back(column->getValueAsString());
 			}
@@ -207,7 +214,53 @@ std::string Query<M>::buildSingleInsertQuery() const {
 		query << "\nRETURNING " << primaryKey->getName() << ";";
 
 		std::cout << "\n\n" << query.str() << "\n\n";
-		
+
+		return query.str();
+	}
+	template <typename M>
+	std::string Query<M>::buildUpdateQuery(const std::vector<std::string>& columns) {
+		const auto dirtyColumns = getDirtyColumns();
+		if (dirtyColumns.empty()) {
+			throw std::runtime_error("No columns to update");
+		}
+
+		const auto primaryKey = getPrimaryKey();
+		std::cout << "Primary key: " << primaryKey->toString() << std::endl;
+		if (not primaryKey) {
+			throw std::runtime_error("No primary key found");
+		}
+
+		std::vector<std::shared_ptr<column::ColumnBase>> columnsToUpdate;
+		if (columns.empty()) {
+			columnsToUpdate = dirtyColumns;
+		} else {
+			for (const auto& column : dirtyColumns) {
+				if (std::find(columns.begin(), columns.end(), column->getName()) != columns.end())
+					columnsToUpdate.push_back(column);
+			}
+		}
+
+		if (columnsToUpdate.empty()) {
+			throw std::runtime_error("No columns to update after filtering");
+		}
+
+		std::vector<std::string> setStatements;
+		setStatements.reserve(columnsToUpdate.size());
+
+		for (const auto& column : columnsToUpdate) {
+			if (column->isPrimaryKey()) {
+				continue;
+			}
+			setStatements.push_back(column->getName() + " = " + column->getValueAsString());
+		}
+
+		std::ostringstream query;
+		query << "UPDATE " << model.getTableName() << "\nSET\n"
+			<< tools::join(setStatements, ",\n")
+			<< "\nWHERE " << primaryKey->getName()
+			<< " = " << primaryKey->getValueAsString() << "\n"
+			<< "RETURNING *";
+
 		return query.str();
 	}
 

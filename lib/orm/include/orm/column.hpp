@@ -339,14 +339,14 @@ namespace column {
 		[[nodiscard]] bool isNullable() const;
 		[[nodiscard]] std::string toString() const;
 		void setTableName(const std::string& tableName);
-		virtual void setNull() = 0;
-		virtual void setValueFromField(const pqxx::field& field) = 0;
+		virtual void setNull(const bool init = false) = 0;
+		virtual void initValue(const pqxx::field& field) = 0;
 		virtual void setValueFromPtr(const void* ptr) = 0;
 		[[nodiscard]] virtual std::unique_ptr<ColumnBase> clone() const = 0;
 		[[nodiscard]] bool isPtrNull() const;
 		[[nodiscard]] bool isPtrNotNull() const;
 		[[nodiscard]] static bool isStringLike();
-		bool getDirty() const;
+		bool isDirty() const;
 		void markDirty();
 		void clearDirty();
 		[[nodiscard]] condition::Condition<std::string> isNull() const;
@@ -374,8 +374,8 @@ namespace column {
 		[[nodiscard]] unsigned int* getPtrValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const unsigned int value);
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		SerialColumn& operator = (const unsigned int value);
@@ -404,8 +404,8 @@ namespace column {
 		[[nodiscard]] int* getPtrValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const int value);
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		IntegerColumn& operator = (const int value);
@@ -434,8 +434,8 @@ namespace column {
 		[[nodiscard]] size_t getLength() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::string& value);
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		[[nodiscard]] static bool isStringLike();
@@ -470,8 +470,8 @@ namespace column {
 		[[nodiscard]] std::string* getPtrValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::string& value);
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		[[nodiscard]] static bool isStringLike();
@@ -505,8 +505,8 @@ namespace column {
 		[[nodiscard]] double* getPtrValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const double value);
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		DecimalColumn& operator = (const double value);
@@ -536,8 +536,8 @@ namespace column {
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& dateStr, const std::string& format = "%Y-%m-%d");
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		[[nodiscard]] static bool isStringLike();
@@ -582,8 +582,8 @@ namespace column {
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::seconds& value);
 		void setValue(const std::string& timeStr, const std::string& format = "%H-%M-%S");
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		[[nodiscard]] static bool isStringLike();
@@ -628,8 +628,8 @@ namespace column {
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& dateTimeStr, const std::string& format = "%Y-%m-%d %H:%M:%S");
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		[[nodiscard]] static bool isStringLike();
@@ -674,8 +674,8 @@ namespace column {
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& timestampStr, const std::string& format = "%Y-%m-%d %H:%M:%S");
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		[[nodiscard]] static bool isStringLike();
@@ -720,8 +720,8 @@ namespace column {
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const bool value);
 		void setValue(const int value);
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		BooleanColumn& operator = (const bool value);
@@ -755,8 +755,8 @@ namespace column {
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const T value);
 		void setMapping(const std::map<T, std::string>& mapping, const T value);
-		void setNull() override;
-		void setValueFromField(const pqxx::field& field) override;
+		void setNull(const bool init = false) override;
+		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
 		[[nodiscard]] static bool isStringLike();
@@ -810,7 +810,7 @@ namespace column {
 		std::shared_ptr<T>& get();
 		value_type* getPtrValue() const;
 		[[nodiscard]] std::string getValueAsString() const;
-		void setNull();
+		void setNull(const bool init = false);
 
 		// Metodi specifici per stringhe
 		template<typename U = T>
