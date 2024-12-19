@@ -1,6 +1,0 @@
-/Users/catalinchirosca/Projects/Angular_C++/Tasks/BackEnd/cmake-build-relwithdebinfo/CMakeFiles/BackEnd.dir
-/Users/catalinchirosca/Projects/Angular_C++/Tasks/BackEnd/cmake-build-relwithdebinfo/CMakeFiles/edit_cache.dir
-/Users/catalinchirosca/Projects/Angular_C++/Tasks/BackEnd/cmake-build-relwithdebinfo/CMakeFiles/rebuild_cache.dir
-/Users/catalinchirosca/Projects/Angular_C++/Tasks/BackEnd/cmake-build-relwithdebinfo/lib/orm/CMakeFiles/orm.dir
-/Users/catalinchirosca/Projects/Angular_C++/Tasks/BackEnd/cmake-build-relwithdebinfo/lib/orm/CMakeFiles/edit_cache.dir
-/Users/catalinchirosca/Projects/Angular_C++/Tasks/BackEnd/cmake-build-relwithdebinfo/lib/orm/CMakeFiles/rebuild_cache.dir
