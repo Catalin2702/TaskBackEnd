@@ -165,13 +165,13 @@ namespace tools {
 		if (specialValue != SqlSpecialValue::NONE)
 			switch (specialValue) {
 				case SqlSpecialValue::NULL_VALUE:
-					return "NULL";
+					return "null";
 				case SqlSpecialValue::CURRENT_DATE:
-					return "CURRENT_DATE";
+					return "current_date";
 				case SqlSpecialValue::CURRENT_TIME:
-					return "CURRENT_TIME";
+					return "current_time";
 				case SqlSpecialValue::CURRENT_TIMESTAMP:
-					return "CURRENT_TIMESTAMP";
+					return "current_timestamp";
 				default:
 					break;
 			}

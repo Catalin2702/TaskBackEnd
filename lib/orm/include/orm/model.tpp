@@ -2,7 +2,7 @@
 namespace model {
 
 	template <typename T>
-	void Model::registerStaticColumn(std::shared_ptr<T>& property) {
+	void Model::registerEmptyColumn(std::shared_ptr<T>& property) {
 		static_assert(std::is_base_of_v<column::ColumnBase, T>, "Template must derive from ColumnBase!");
 		if (property->isPrimaryKey()) {
 			if (this->primaryKey)
@@ -14,6 +14,11 @@ namespace model {
 		}
 		if (property->getTableName().empty()) property->setTableName(getTableName());
 		columns.push_back(property);
+	}
+	template <typename T>
+	void Model::registerColumn(std::shared_ptr<T>& property, const typename T::value_type& value) {
+		registerEmptyColumn(property);
+		property->setValue(value);
 	}
 
 }

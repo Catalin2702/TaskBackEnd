@@ -12,6 +12,9 @@
 #define DB_USER "task_admin"
 #define DB_PASS "task_admin"
 
+#define SERVER_URL "0.0.0.0"
+#define SERVER_PORT 3000
+
 #define DB_URI DB_ENGINE "://" DB_USER ":" DB_PASS "@" DB_HOST ":" DB_PORT "/" DB_NAME
 
 #endif //PARAMS_HPP

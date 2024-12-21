@@ -76,13 +76,13 @@ namespace value {
 
 	class SerialValue final : public SqlValue {
 	public:
-		explicit SerialValue(unsigned int value);
+		explicit SerialValue(unsigned long value);
 		[[nodiscard]] std::string toString() const override;
-		[[nodiscard]] unsigned int* getPtr();
-		void setValue(unsigned int value);
+		[[nodiscard]] unsigned long* getPtr();
+		void setValue(unsigned long value);
 		
 	private:
-		unsigned int value;
+		unsigned long value;
 	};
 
 	class IntegerValue final : public SqlValue {
@@ -334,6 +334,8 @@ namespace column {
 		[[nodiscard]] std::string getTypeDefinition() const;
 		template<typename T>
 		[[nodiscard]] T* getPtrValue() const;
+		template<typename T>
+		[[nodiscard]] T getValue() const;
 		[[nodiscard]] virtual std::string getValueAsString() const = 0;
 		[[nodiscard]] bool isPrimaryKey() const;
 		[[nodiscard]] bool isNullable() const;
@@ -366,27 +368,28 @@ namespace column {
 
 	class SerialColumn final: public ColumnBase {
 	public:
-		typedef int value_type;
+		typedef unsigned long value_type;
 		explicit SerialColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit SerialColumn(const std::string& name, const unsigned int value, const bool primaryKey = false, const bool nullable = false);
+		explicit SerialColumn(const std::string& name, const unsigned long value, const bool primaryKey = false, const bool nullable = false);
 		SerialColumn(const SerialColumn& other);
 		~SerialColumn() override;
-		[[nodiscard]] unsigned int* getPtrValue() const;
+		[[nodiscard]] unsigned long* getPtrValue() const;
+		[[nodiscard]] unsigned long getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
-		void setValue(const unsigned int value);
+		void setValue(const unsigned long value);
 		void setNull(const bool init = false) override;
 		void initValue(const pqxx::field& field) override;
 		void setValueFromPtr(const void* ptr) override;
 		[[nodiscard]] std::unique_ptr<ColumnBase> clone() const override;
-		SerialColumn& operator = (const unsigned int value);
-		condition::Condition<unsigned int> operator == (const unsigned int value) const;
-		condition::Condition<unsigned int> operator != (const unsigned int value) const;
-		condition::Condition<unsigned int> operator < (const unsigned int value) const;
-		condition::Condition<unsigned int> operator <= (const unsigned int value) const;
-		condition::Condition<unsigned int> operator > (const unsigned int value) const;
-		condition::Condition<unsigned int> operator >= (const unsigned int value) const;
-		[[nodiscard]] condition::Condition<unsigned int> in(const std::vector<unsigned int>& values) const;
-		[[nodiscard]] condition::Condition<unsigned int> notIn(const std::vector<unsigned int>& values) const;
+		SerialColumn& operator = (const unsigned long value);
+		condition::Condition<unsigned long> operator == (const unsigned long value) const;
+		condition::Condition<unsigned long> operator != (const unsigned long value) const;
+		condition::Condition<unsigned long> operator < (const unsigned long value) const;
+		condition::Condition<unsigned long> operator <= (const unsigned long value) const;
+		condition::Condition<unsigned long> operator > (const unsigned long value) const;
+		condition::Condition<unsigned long> operator >= (const unsigned long value) const;
+		[[nodiscard]] condition::Condition<unsigned long> in(const std::vector<unsigned long>& values) const;
+		[[nodiscard]] condition::Condition<unsigned long> notIn(const std::vector<unsigned long>& values) const;
 
 	protected:
 		[[nodiscard]] void* getPtr() const override;
@@ -402,6 +405,7 @@ namespace column {
 		IntegerColumn(const IntegerColumn& other);
 		~IntegerColumn() override;
 		[[nodiscard]] int* getPtrValue() const;
+		[[nodiscard]] int getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const int value);
 		void setNull(const bool init = false) override;
@@ -432,6 +436,7 @@ namespace column {
 		~StringColumn() override;
 		[[nodiscard]] std::string* getPtrValue() const;
 		[[nodiscard]] size_t getLength() const;
+		[[nodiscard]] std::string getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::string& value);
 		void setNull(const bool init = false) override;
@@ -468,6 +473,7 @@ namespace column {
 		TextColumn(const TextColumn& other);
 		~TextColumn() override;
 		[[nodiscard]] std::string* getPtrValue() const;
+		[[nodiscard]] std::string getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::string& value);
 		void setNull(const bool init = false) override;
@@ -503,6 +509,7 @@ namespace column {
 		DecimalColumn(const DecimalColumn& other);
 		~DecimalColumn() override;
 		[[nodiscard]] double* getPtrValue() const;
+		[[nodiscard]] double getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const double value);
 		void setNull(const bool init = false) override;
@@ -533,6 +540,7 @@ namespace column {
 		DateColumn(const DateColumn& other);
 		~DateColumn() override;
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtrValue() const;
+		[[nodiscard]] std::chrono::system_clock::time_point getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& dateStr, const std::string& format = "%Y-%m-%d");
@@ -579,6 +587,7 @@ namespace column {
 		TimeColumn(const TimeColumn& other);
 		~TimeColumn() override;
 		[[nodiscard]] std::chrono::seconds* getPtrValue() const;
+		[[nodiscard]] std::chrono::seconds getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::seconds& value);
 		void setValue(const std::string& timeStr, const std::string& format = "%H-%M-%S");
@@ -625,6 +634,7 @@ namespace column {
 		DateTimeColumn(const DateTimeColumn& other);
 		~DateTimeColumn() override;
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtrValue() const;
+		[[nodiscard]] std::chrono::system_clock::time_point getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& dateTimeStr, const std::string& format = "%Y-%m-%d %H:%M:%S");
@@ -671,6 +681,7 @@ namespace column {
 		TimestampColumn(const TimestampColumn& other);
 		~TimestampColumn() override;
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtrValue() const;
+		[[nodiscard]] std::chrono::system_clock::time_point	getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const std::chrono::system_clock::time_point& value);
 		void setValue(const std::string& timestampStr, const std::string& format = "%Y-%m-%d %H:%M:%S");
@@ -717,6 +728,7 @@ namespace column {
 		BooleanColumn(const BooleanColumn& other);
 		~BooleanColumn() override;
 		[[nodiscard]] bool* getPtrValue() const;
+		[[nodiscard]] bool getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const bool value);
 		void setValue(const int value);
@@ -752,6 +764,7 @@ namespace column {
 		~EnumColumn() override;
 		[[nodiscard]] const std::map<T, std::string>& getMapping() const;
 		[[nodiscard]] T* getPtrValue() const;
+		[[nodiscard]] T getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;
 		void setValue(const T value);
 		void setMapping(const std::map<T, std::string>& mapping, const T value);
@@ -809,15 +822,15 @@ namespace column {
 
 		std::shared_ptr<T>& get();
 		value_type* getPtrValue() const;
+		value_type getValue() const;
 		[[nodiscard]] std::string getValueAsString() const;
 		void setNull(const bool init = false);
 		[[nodiscard]] static constexpr bool isStringLike();
 
-		// Metodi specifici per stringhe
-		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
-		[[nodiscard]] condition::Condition<std::string> in(const std::vector<std::string>& values) const;
-		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
-		[[nodiscard]] condition::Condition<std::string> notIn(const std::vector<std::string>& values) const;
+		template<typename U = T>
+		[[nodiscard]] condition::Condition<value_type> in(const std::vector<value_type>& values) const;
+		template<typename U = T>
+		[[nodiscard]] condition::Condition<value_type> notIn(const std::vector<value_type>& values) const;
 		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>
 		[[nodiscard]] condition::Condition<std::string> like(const std::string& value) const;
 		template<typename U = T, typename std::enable_if<U::isStringLike(), int>::type>

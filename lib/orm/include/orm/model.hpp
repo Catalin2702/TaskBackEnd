@@ -27,7 +27,9 @@ namespace model {
 		Model& operator=(Model&& other) noexcept = default;
 	protected:
 		template<typename T>
-		void registerStaticColumn(std::shared_ptr<T>& property);
+		void registerEmptyColumn(std::shared_ptr<T>& property);
+		template<typename T>
+		void registerColumn(std::shared_ptr<T>& property, const typename T::value_type& value);
 		std::string tableName;
 	private:
 		std::vector<std::shared_ptr<column::ColumnBase>> columns;

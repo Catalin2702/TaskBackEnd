@@ -7,7 +7,8 @@
 
 #include <memory>
 #include <pqxx/pqxx>
-
+#include <vector>
+#include <type_traits>
 
 #include "database.hpp"
 #include "model.hpp"
@@ -57,12 +58,12 @@ namespace session {
 		template <typename T>
 		Query filter(condition::Condition<T> condition) const;
 
-		[[nodiscard]] std::vector<M> all();
-		[[nodiscard]] M first();
-		[[nodiscard]] std::vector<M> limit(const int limit);
-		[[nodiscard]] std::vector<M> insert();
-		[[nodiscard]] M update(const std::vector<std::string>& columns = {});
-		[[nodiscard]] std::vector<int> remove();
+		[[nodiscard]] std::optional<std::vector<M>> all();
+		[[nodiscard]] std::optional<M> first();
+		[[nodiscard]] std::optional<std::vector<M>> limit(const int limit);
+		[[nodiscard]] std::optional<std::vector<M>> insert();
+		[[nodiscard]] std::optional<M> update(const std::vector<std::string>& columns = {});
+		[[nodiscard]] std::vector<unsigned long> remove();
 		[[nodiscard]] std::string toString() const;
 		explicit operator std::string() const;
 
@@ -71,7 +72,7 @@ namespace session {
 		[[nodiscard]] std::vector<std::shared_ptr<column::ColumnBase>> getDirtyColumns() const;
 		[[nodiscard]] std::vector<std::string> getColumnNames() const;
 		[[nodiscard]] std::shared_ptr<column::ColumnBase> getPrimaryKey();
-		[[nodiscard]] std::string buildSelectQuery(const int limit = 0);
+		[[nodiscard]] std::string buildSelectQuery(const unsigned int limit = 0);
 		[[nodiscard]] std::string buildSingleInsertQuery() const;
 		[[nodiscard]] std::string buildBatchInsertQuery() const;
 		[[nodiscard]] std::string buildUpdateQuery(const std::vector<std::string>& columns = {});

@@ -44,7 +44,7 @@ namespace session {
 
 	template <typename M>
 	Query<M> Query<M>::filter(const std::string& condition) const {
-		Query query(model);
+		Query query(model, session);
 		query.condition = condition;
 		return query;
 	}
@@ -56,47 +56,58 @@ namespace session {
 		return query;
 	}
 	template <typename M>
-	std::vector<M> Query<M>::all() {
+	std::optional<std::vector<M>> Query<M>::all() {
 		finalQuery = buildSelectQuery();
-		return session->execute(*this);
+		const auto results = session->execute(*this);
+		if (results.empty())
+			return std::nullopt;
+		return results;
 	}
 	template <typename M>
-	M Query<M>::first() {
+	std::optional<M> Query<M>::first() {
 		finalQuery = buildSelectQuery(1);
 		const auto results = session->execute(*this);
 		if (results.empty())
-			throw std::runtime_error("No results found");
+			return std::nullopt;
 		return results.front();
 	}
 	template <typename M>
-	std::vector<M> Query<M>::limit(const int limit) {
+	std::optional<std::vector<M>> Query<M>::limit(const int limit) {
 		finalQuery = buildSelectQuery(limit);
-		return session->execute(*this);
+		const auto results = session->execute(*this);
+		if (results.empty())
+			return std::nullopt;
+		return results;
 	}
 	template<typename M>
-	std::vector<M> Query<M>::insert() {
+	std::optional<std::vector<M>> Query<M>::insert() {
 		if (isBatch)
 			finalQuery = buildBatchInsertQuery();
 		else
 			finalQuery = buildSingleInsertQuery();
-		return session->execute(*this);
+		const auto results = session->execute(*this);
+		if (results.empty())
+			return std::nullopt;
+		return results;
 	}
 	template<typename M>
-	M Query<M>::update(const std::vector<std::string>& columns) {
+	std::optional<M> Query<M>::update(const std::vector<std::string>& columns) {
 		finalQuery = buildUpdateQuery(columns);
 		const auto results = session->execute(*this);
 		if (results.empty())
-			throw std::runtime_error("No results found");
+			return std::nullopt;
 		return results.front();
 	}
 	template <typename M>
-	std::vector<int> Query<M>::remove() {
+	std::vector<unsigned long> Query<M>::remove() {
 		finalQuery = buildDeleteQuery();
 		const pqxx::result result = session->execute(finalQuery);
-		std::vector<int> ids;
+		if (result.empty())
+			return {0};
+		std::vector<unsigned long> ids;
 		ids.reserve(result.size());
 		for (const auto& row : result) {
-			ids.push_back(row[0].as<int>());
+			ids.push_back(row[0].as<unsigned long>());
 		}
 		return ids;
 	}
@@ -128,10 +139,11 @@ namespace session {
 		columns.reserve(modelColumns.size());
 		for (const auto& column : modelColumns)
 			columns.push_back(column->getFullName());
+
 		return columns;
 	}
 	template <typename M>
-	std::string Query<M>::buildSelectQuery(const int limit) {
+	std::string Query<M>::buildSelectQuery(const unsigned int limit) {
 		std::ostringstream queryString;
 		queryString << "SELECT " << tools::join(getColumnNames(), ", ") << std::endl;
 		queryString << "FROM " << model.getTableName() << std::endl;
@@ -140,6 +152,7 @@ namespace session {
 		if (limit > 0)
 			queryString << "LIMIT " << limit << std::endl;
 		queryString << ";" << std::endl;
+
 		return queryString.str();
 	}
 	template<typename M>
@@ -217,10 +230,7 @@ namespace session {
 			query << ")";
 			firstModel = false;
 		}
-
 		query << "\nRETURNING *;";
-
-		std::cout << "\n\n" << query.str() << "\n\n";
 
 		return query.str();
 	}
@@ -232,7 +242,6 @@ namespace session {
 		}
 
 		const auto primaryKey = getPrimaryKey();
-		std::cout << "Primary key: " << primaryKey->toString() << std::endl;
 		if (not primaryKey) {
 			throw std::runtime_error("No primary key found");
 		}
@@ -264,9 +273,15 @@ namespace session {
 		std::ostringstream query;
 		query << "UPDATE " << model.getTableName() << "\nSET\n"
 			<< tools::join(setStatements, ",\n")
-			<< "\nWHERE " << primaryKey->getName()
-			<< " = " << primaryKey->getValueAsString() << "\n"
-			<< "RETURNING *";
+			<< "\nWHERE ";
+
+		if (condition.empty())
+			query << primaryKey->getName()
+			<< " = " << primaryKey->getValueAsString() << "\n";
+		else
+			query << condition << "\n";
+
+		query << "RETURNING *";
 
 		return query.str();
 	}
@@ -293,8 +308,6 @@ namespace session {
 			query << condition;
 		}
 		query << "\nRETURNING " << primaryKey->getName() << ";";
-
-		std::cout << "\n\n" << query.str() << "\n\n";
 
 		return query.str();
 	}

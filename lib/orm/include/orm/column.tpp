@@ -3,7 +3,8 @@
 namespace value {
 
 	template<typename T>
-	EnumValue<T>::EnumValue(const std::map<T, std::string> &mapping, const T *value): SqlValue(SqlType::Enum), mapping(mapping), value(value ? *value : mapping.begin()->first) {
+	EnumValue<T>::EnumValue(const std::map<T, std::string> &mapping, const T *value):
+	SqlValue(SqlType::Enum), mapping(mapping), value(value ? *value : mapping.begin()->first) {
 		if (not mapping.count(value)) throw std::invalid_argument("Value not in mapping");
 	}
 	template<typename T>
@@ -135,7 +136,10 @@ namespace column {
 	T* ColumnBase::getPtrValue() const {
 		return static_cast<T*>(getPtr());
 	}
-
+	template <typename T>
+	T ColumnBase::getValue() const {
+		return *getPtrValue<T>();
+	}
 	template<typename T>
 	EnumColumn<T>::EnumColumn(const std::string &name, const std::map<T, std::string> mapping, const bool primaryKey, const bool nullable):
 		ColumnBase(name, value::SqlType::Enum, "", primaryKey, nullable) {
@@ -188,7 +192,7 @@ namespace column {
 			else
 				return std::to_string(*ptr);
 		}
-		return "NULL";
+		return "null";
 	}
 	template<typename T>
 	void EnumColumn<T>::setNull(const bool init) {
@@ -353,6 +357,10 @@ namespace column {
 		return column->getPtrValue();
 	}
 	template<typename T>
+	typename T::value_type ColumnRef<T>::getValue() const {
+		return column->getValue();
+	}
+	template<typename T>
 	std::string ColumnRef<T>::getValueAsString() const {
 		return column->getValueAsString();
 	}
@@ -365,13 +373,15 @@ namespace column {
 		return T::isStringLike();
 	}
 	template<typename T>
-	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
-	condition::Condition<std::string> ColumnRef<T>::in(const std::vector<std::string>& values) const {
+	template<typename U>
+	condition::Condition<typename ColumnRef<T>::value_type>
+	ColumnRef<T>::in(const std::vector<value_type>& values) const {
 		return column->in(values);
 	}
 	template<typename T>
-	template<typename U, typename std::enable_if<U::isStringLike(), int>::type>
-	condition::Condition<std::string> ColumnRef<T>::notIn(const std::vector<std::string>& values) const {
+	template<typename U>
+	condition::Condition<typename ColumnRef<T>::value_type>
+	ColumnRef<T>::notIn(const std::vector<value_type>& values) const {
 		return column->notIn(values);
 	}
 	template<typename T>

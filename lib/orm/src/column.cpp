@@ -17,15 +17,15 @@ namespace value {
 		return false;
 	}
 
-	SerialValue::SerialValue(const unsigned int value):
+	SerialValue::SerialValue(const unsigned long value):
 		SqlValue(SqlType::Serial), value(value) {}
 	std::string SerialValue::toString() const {
 		return std::to_string(value);
 	}
-	unsigned int* SerialValue::getPtr() {
+	unsigned long* SerialValue::getPtr() {
 		return &value;
 	}
-	void SerialValue::setValue(const unsigned int value) {
+	void SerialValue::setValue(const unsigned long value) {
 		this->value = value;
 	}
 
@@ -291,7 +291,7 @@ namespace column {
 
 	SerialColumn::SerialColumn(const std::string& name, const bool primaryKey, const bool nullable):
 		ColumnBase(name, value::SqlType::Serial, "", primaryKey, nullable) {}
-	SerialColumn::SerialColumn(const std::string& name, const unsigned int value, const bool primaryKey, const bool nullable):
+	SerialColumn::SerialColumn(const std::string& name, const unsigned long value, const bool primaryKey, const bool nullable):
 		ColumnBase(name, value::SqlType::Serial, "", primaryKey, false) {
 		this->setValue(value);
 	}
@@ -304,15 +304,20 @@ namespace column {
 		if (value)
 			this->value.reset();
 	}
-	unsigned int* SerialColumn::getPtrValue() const {
-		return static_cast<unsigned int*>(getPtr());
+	unsigned long* SerialColumn::getPtrValue() const {
+		return static_cast<unsigned long*>(getPtr());
+	}
+	unsigned long SerialColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return 0;
 	}
 	std::string SerialColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue())
 			return std::to_string(*ptr);
-		return "NULL";
+		return "null";
 	}
-	void SerialColumn::setValue(const unsigned int value) {
+	void SerialColumn::setValue(const unsigned long value) {
 		if (not this->value)
 			this->value = std::make_unique<value::SerialValue>(value);
 		else
@@ -325,44 +330,44 @@ namespace column {
 	void SerialColumn::setValueFromPtr(const void* ptr) {
 		if (ptr == nullptr)
 			throw std::runtime_error(toString() + " cannot be null");
-		value = std::make_unique<value::SerialValue>(*static_cast<const unsigned int*>(ptr));
+		value = std::make_unique<value::SerialValue>(*static_cast<const unsigned long*>(ptr));
 		markDirty();
 	}
 	void SerialColumn::initValue(const pqxx::field& field) {
-		value = std::make_unique<value::SerialValue>(field.as<unsigned int>());
+		value = std::make_unique<value::SerialValue>(field.as<unsigned long>());
 	}
 	void* SerialColumn::getPtr() const {
 		return value ? value->getPtr() : nullptr;
 	}
-	SerialColumn& SerialColumn::operator = (const unsigned int value) {
+	SerialColumn& SerialColumn::operator = (const unsigned long value) {
 		setValue(value);
 		return *this;
 	}
 	std::unique_ptr<ColumnBase> SerialColumn::clone() const {
 		return std::make_unique<SerialColumn>(*this);
 	}
-	condition::Condition<unsigned int> SerialColumn::operator == (const unsigned int value) const {
+	condition::Condition<unsigned long> SerialColumn::operator == (const unsigned long value) const {
 		return {getFullName(), condition::SqlOperator::EQUAL, value};
 	}
-	condition::Condition<unsigned int> SerialColumn::operator != (const unsigned int value) const {
+	condition::Condition<unsigned long> SerialColumn::operator != (const unsigned long value) const {
 		return {getFullName(), condition::SqlOperator::NOT_EQUAL, value};
 	}
-	condition::Condition<unsigned int> SerialColumn::operator < (const unsigned int value) const {
+	condition::Condition<unsigned long> SerialColumn::operator < (const unsigned long value) const {
 		return {getFullName(), condition::SqlOperator::LESS, value};
 	}
-	condition::Condition<unsigned int> SerialColumn::operator <= (const unsigned int value) const {
+	condition::Condition<unsigned long> SerialColumn::operator <= (const unsigned long value) const {
 		return {getFullName(), condition::SqlOperator::LESS_EQUAL, value};
 	}
-	condition::Condition<unsigned int> SerialColumn::operator > (const unsigned int value) const {
+	condition::Condition<unsigned long> SerialColumn::operator > (const unsigned long value) const {
 		return {getFullName(), condition::SqlOperator::GREATER, value};
 	}
-	condition::Condition<unsigned int> SerialColumn::operator >= (const unsigned int value) const {
+	condition::Condition<unsigned long> SerialColumn::operator >= (const unsigned long value) const {
 		return {getFullName(), condition::SqlOperator::GREATER_EQUAL, value};
 	}
-	condition::Condition<unsigned int> SerialColumn::in(const std::vector<unsigned int>& values) const {
+	condition::Condition<unsigned long> SerialColumn::in(const std::vector<unsigned long>& values) const {
 		return {getFullName(), condition::SqlOperator::IN, values};
 	}
-	condition::Condition<unsigned int> SerialColumn::notIn(const std::vector<unsigned int>& values) const {
+	condition::Condition<unsigned long> SerialColumn::notIn(const std::vector<unsigned long>& values) const {
 		return {getFullName(), condition::SqlOperator::NOT_IN, values};
 	}
 
@@ -384,10 +389,15 @@ namespace column {
 	int* IntegerColumn::getPtrValue() const {
 		return static_cast<int*>(getPtr());
 	}
+	int IntegerColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return 0;
+	}
 	std::string IntegerColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue())
 			return std::to_string(*ptr);
-		return "NULL";
+		return "null";
 	}
 	void IntegerColumn::setValue(const int value) {
 		if (not this->value)
@@ -468,6 +478,11 @@ namespace column {
 	}
 	std::string * StringColumn::getPtrValue() const {
 		return static_cast<std::string*>(getPtr());
+	}
+	std::string StringColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return "";
 	}
 	size_t StringColumn::getLength() const {
 		return length;
@@ -587,6 +602,11 @@ namespace column {
 	std::string* TextColumn::getPtrValue() const {
 		return static_cast<std::string*>(getPtr());
 	}
+	std::string TextColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return "";
+	}
 	void TextColumn::setValue(const std::string &value) {
 		if (not this->value)
 			this->value = std::make_unique<value::TextValue>(value);
@@ -692,10 +712,15 @@ namespace column {
 	double *DecimalColumn::getPtrValue() const {
 		return static_cast<double*>(getPtr());
 	}
+	double DecimalColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return 0.0;
+	}
 	std::string DecimalColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue())
 			return std::to_string(*ptr);
-		return "NULL";
+		return "null";
 	}
 	void DecimalColumn::setValue(const double value) {
 		if (not this->value)
@@ -780,6 +805,11 @@ namespace column {
 	}
 	std::chrono::system_clock::time_point *DateColumn::getPtrValue() const {
 		return static_cast<std::chrono::system_clock::time_point*>(getPtr());
+	}
+	std::chrono::system_clock::time_point DateColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return std::chrono::system_clock::time_point{};
 	}
 	std::string DateColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue()) {
@@ -933,6 +963,11 @@ namespace column {
 	std::chrono::seconds *TimeColumn::getPtrValue() const {
 		return static_cast<std::chrono::seconds*>(getPtr());
 	}
+	std::chrono::seconds TimeColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return std::chrono::seconds{};
+	}
 	std::string TimeColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue()) {
 			return tools::format(tools::timeToString(*ptr), true);
@@ -1084,6 +1119,11 @@ namespace column {
 	}
 	std::chrono::system_clock::time_point *DateTimeColumn::getPtrValue() const {
 		return static_cast<std::chrono::time_point<std::chrono::system_clock>*>(getPtr());
+	}
+	std::chrono::system_clock::time_point DateTimeColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return std::chrono::system_clock::time_point{};
 	}
 	std::string DateTimeColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue()) {
@@ -1237,6 +1277,11 @@ namespace column {
 	std::chrono::system_clock::time_point *TimestampColumn::getPtrValue() const {
 		return static_cast<std::chrono::time_point<std::chrono::system_clock>*>(getPtr());
 	}
+	std::chrono::system_clock::time_point TimestampColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return std::chrono::system_clock::time_point{};
+	}
 	std::string TimestampColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue()) {
 			return tools::format(tools::timestampToString(*ptr), true);
@@ -1386,10 +1431,15 @@ namespace column {
 	bool *BooleanColumn::getPtrValue() const {
 		return static_cast<bool*>(getPtr());
 	}
+	bool BooleanColumn::getValue() const {
+		if (const auto ptr = getPtrValue())
+			return *ptr;
+		return false;
+	}
 	std::string BooleanColumn::getValueAsString() const {
 		if (const auto ptr = getPtrValue())
 			return *ptr ? "true" : "false";
-		return "NULL";
+		return "null";
 	}
 	void BooleanColumn::setValue(const bool value) {
 		if (not this->value)
