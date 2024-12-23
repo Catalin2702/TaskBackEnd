@@ -8,11 +8,9 @@
 #include <chrono>
 #include <httplib.h>
 #include <memory>
-#include "picosha2.h"
 
 #include "controller.hpp"
 #include "api/service/s_user.hpp"
-
 
 class UserController final: public Controller {
 public:

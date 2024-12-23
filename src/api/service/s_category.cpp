@@ -1,13 +1,10 @@
 //
 // Created by Catalin Chirosca on 23/12/24.
 //
-#include <climits>
-
 #include "api/service/s_category.hpp"
 
 CategoryService::CategoryService(std::shared_ptr<session::Session> session):
-	session(std::move(session)) {
-}
+	session(std::move(session)) {}
 
 std::optional<std::vector<Category>> CategoryService::getCategories(const std::vector<unsigned long>& ids) const {
 	const Category categorie{};
@@ -21,7 +18,7 @@ std::optional<std::vector<Category>> CategoryService::getCategories(const std::v
 std::optional<std::vector<Category>> CategoryService::getUserCategories(const unsigned long userId) const {
 	const Category categorie{};
 	auto query = session->query(categorie);
-	query = query.filter(categorie.userId == userId);
+	query = query.filter(categorie.userId == static_cast<int>(userId));
 	const auto results = query.all();
 	session->commit();
 	return results;
@@ -33,7 +30,7 @@ std::optional<std::vector<Category>> CategoryService::getUsersCategories(const s
 		std::vector<int> unsignedIds;
 		unsignedIds.reserve(userIds.size());
 		for (const auto& id : userIds) {
-			unsignedIds.push_back(id & INT_MAX);
+			unsignedIds.push_back(static_cast<int>(id));
 		}
 		query = query.filter(categorie.userId.in(unsignedIds));
 	}

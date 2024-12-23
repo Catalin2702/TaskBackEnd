@@ -13,7 +13,7 @@ Category::Category():
 	registerEmptyColumn<column::TimestampColumn>(updated);
 }
 
-Category::Category(const std::string& title, const std::string& description, const int userId):
+Category::Category(const std::string& title, const int userId, const std::string& description):
 	Model("categories") {
 	registerEmptyColumn<column::SerialColumn>(id);
 	registerColumn<column::StringColumn>(this->title, title);

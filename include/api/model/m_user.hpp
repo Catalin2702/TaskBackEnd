@@ -11,12 +11,11 @@
 class User final : public model::Model {
 public:
 	User();
-	User(const std::string& username, const std::string& email, const std::string& password_hash);
+	User(const std::string& username, const std::string& email);
 
 	column::ColumnRef<column::SerialColumn> id{std::make_shared<column::SerialColumn>("id", true, false)};
 	column::ColumnRef<column::StringColumn> username{std::make_shared<column::StringColumn>("username", 50)};
 	column::ColumnRef<column::StringColumn> email{std::make_shared<column::StringColumn>("email", 100)};
-	column::ColumnRef<column::StringColumn> password_hash{std::make_shared<column::StringColumn>("password_hash", 255)};
 	column::ColumnRef<column::TimestampColumn> created{std::make_shared<column::TimestampColumn>("created")};
 	column::ColumnRef<column::TimestampColumn> updated{std::make_shared<column::TimestampColumn>("updated")};
 

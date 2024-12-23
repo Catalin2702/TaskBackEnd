@@ -14,12 +14,7 @@ FetchContent_Declare(
         json
         URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
-FetchContent_Declare(
-        picosha2
-        GIT_REPOSITORY https://github.com/okdshin/PicoSHA2.git
-        GIT_TAG master
-)
-FetchContent_MakeAvailable(httplib json picosha2)
+FetchContent_MakeAvailable(httplib json)
 
 # Aggiungi l'eseguibile principale
 add_executable(BackEnd src/main.cpp
@@ -71,7 +66,6 @@ target_link_libraries(BackEnd
         httplib::httplib
         nlohmann_json::nlohmann_json
         orm
-        picosha2
 )
 
 target_precompile_headers(BackEnd PRIVATE

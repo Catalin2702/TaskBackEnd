@@ -9,7 +9,6 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include <orm/session.hpp>
-#include <tools/tools.hpp>
 
 #include "api/model/m_category.hpp"
 #include "service.hpp"

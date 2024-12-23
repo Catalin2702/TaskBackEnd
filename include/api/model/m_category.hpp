@@ -11,7 +11,7 @@
 class Category final : public model::Model {
 public:
 	Category();
-	Category(const std::string& title, const std::string& description, const int userId);
+	Category(const std::string& title, const int userId, const std::string& description = "");
 
 	column::ColumnRef<column::SerialColumn> id{std::make_shared<column::SerialColumn>("id", true)};
 	column::ColumnRef<column::StringColumn> title{std::make_shared<column::StringColumn>("title", 100)};

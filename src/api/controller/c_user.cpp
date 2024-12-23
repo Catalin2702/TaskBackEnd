@@ -16,8 +16,9 @@ void UserController::getUsers(const httplib::Request& req, httplib::Response& re
 			return std::stoul(id);
 		});
 	}
+	json response;
 	try {
-		json response;
+
 		if (const auto users = userService->getUsers(ids);
 			users.has_value()) {
 			json data;
@@ -31,27 +32,26 @@ void UserController::getUsers(const httplib::Request& req, httplib::Response& re
 			res.status = 404;
 			response = createErrorResponse("Users not found");
 		}
-		res.set_content(response.dump(), "application/json");
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::getUsers error: " + std::string(e.what());
 		std::cerr << message << std::endl;
-		const auto response = createErrorResponse(message);
+		response = createErrorResponse(message);
 		res.status = 500;
-		res.set_content(response.dump(), "application/json");
 	}
+	res.set_content(response.dump(), "application/json");
 }
 void UserController::getUser(const httplib::Request& req, httplib::Response& res) const {
 	res.set_header("Content-Type", "application/json");
+	json response;
 	if (not req.has_param("id")) {
-		const auto response = createErrorResponse("Missing id parameter");
+		response = createErrorResponse("Missing id parameter");
 		res.status = 400;
 		res.set_content(response.dump(), "application/json");
 		return;
 	}
 	try {
 		const auto id = std::stoul(req.get_param_value("id"));
-		json response;
 		if (const auto user = userService->getUser(id); user.has_value()) {
 			json data;
 			data["user"] = user.value().toJson();
@@ -62,36 +62,33 @@ void UserController::getUser(const httplib::Request& req, httplib::Response& res
 			res.status = 404;
 			response = createErrorResponse("User not found");
 		}
-		res.set_content(response.dump(), "application/json");
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::getUser error: " + std::string(e.what());
 		std::cerr << message << std::endl;
-		const auto response = createErrorResponse(message);
+		response = createErrorResponse(message);
 		res.status = 500;
-		res.set_content(response.dump(), "application/json");
 	}
+	res.set_content(response.dump(), "application/json");
 }
 void UserController::createUser(const httplib::Request& req, httplib::Response& res) const {
 	res.set_header("Content-Type", "application/json");
-	const std::vector<std::string> params = {"username", "email", "password"};
-	if (const auto missingParam = checkMissingParamsPOST(params, req); missingParam != "") {
+	json response;
+	const std::vector<std::string> params = {"username", "email"};
+	if (const auto missingParam = checkMissingParamsPOST(params, req); not missingParam.empty()) {
 		const auto errorMessage = "Missing " + missingParam + " parameter";
-		auto errorResponse = createErrorResponse(errorMessage);
+		response = createErrorResponse(errorMessage);
 		res.status = 400;
-		res.set_content(errorResponse.dump(), "application/json");
+		res.set_content(response.dump(), "application/json");
 		return;
 	}
 	try {
 		json jsonBody = json::parse(req.body);
 		const auto username = getParamValueFromJson("username", jsonBody);
 		const auto email = getParamValueFromJson("email", jsonBody);
-		const auto password = getParamValueFromJson("password", jsonBody);
-		const auto newUser = userService->createUser(
-			User{username, email, picosha2::hash256_hex_string(password)}
-		);
-		json response;
-		if (newUser.has_value()) {
+
+		if (const auto newUser = userService->createUser(User{username, email});
+			newUser.has_value()) {
 			json data;
 			data["user"] = newUser.value().toJson();
 			res.status = 201;
@@ -101,20 +98,21 @@ void UserController::createUser(const httplib::Request& req, httplib::Response& 
 			res.status = 400;
 			response = createErrorResponse("User not created");
 		}
-		res.set_content(response.dump(), "application/json");
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::createUser error: " + std::string(e.what());
 		std::cerr << message << std::endl;
-		const auto response = createErrorResponse(message);
+		response = createErrorResponse(message);
 		res.status = 500;
-		res.set_content(response.dump(), "application/json");
 	}
+	res.set_content(response.dump(), "application/json");
 }
 void UserController::updateUser(const httplib::Request& req, httplib::Response& res) const {
+	res.set_header("Content-Type", "application/json");
 	const auto jsonBody = json::parse(req.body);
+	json response;
 	if (not jsonBody.contains("id")) {
-		const auto response = createErrorResponse("Missing id parameter");
+		response = createErrorResponse("Missing id parameter");
 		res.status = 400;
 		res.set_content(response.dump(), "application/json");
 		return;
@@ -126,11 +124,8 @@ void UserController::updateUser(const httplib::Request& req, httplib::Response& 
 			user.username = username;
 		if (const auto email = getParamValueFromJson("email", jsonBody); not email.empty())
 			user.email = email;
-		if (const auto password = getParamValueFromJson("password", jsonBody); not password.empty())
-			user.password_hash = picosha2::hash256_hex_string(password);
 		user.updated = std::chrono::system_clock::now();
 
-		json response;
 		if (const auto newUser = userService->updateUser(id, user);
 			newUser.has_value()) {
 			json data;
@@ -142,27 +137,27 @@ void UserController::updateUser(const httplib::Request& req, httplib::Response& 
 			response = createErrorResponse("User not updated");
 			res.status = 400;
 		}
-		res.set_content(response.dump(), "application/json");
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::updateUser error: " + std::string(e.what());
 		std::cerr << message << std::endl;
-		const auto response = createErrorResponse(message);
+		response = createErrorResponse(message);
 		res.status = 500;
-		res.set_content(response.dump(), "application/json");
 	}
+	res.set_content(response.dump(), "application/json");
 }
 void UserController::deleteUser(const httplib::Request& req, httplib::Response& res) const {
+	res.set_header("Content-Type", "application/json");
 	const auto jsonBody = json::parse(req.body);
+	json response;
 	if (not jsonBody.contains("id")) {
-		const auto response = createErrorResponse("Missing id parameter");
+		response = createErrorResponse("Missing id parameter");
 		res.status = 400;
 		res.set_content(response.dump(), "application/json");
 		return;
 	}
 	try {
 		const auto id = jsonBody["id"].get<unsigned long>();
-		json response;
 		if (const auto deletedId = userService->deleteUser(id); deletedId) {
 			json data;
 			data["id"] = deletedId;
@@ -173,28 +168,27 @@ void UserController::deleteUser(const httplib::Request& req, httplib::Response& 
 			response = createErrorResponse("User not deleted");
 			res.status = 400;
 		}
-		res.set_content(response.dump(), "application/json");
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::deleteUser error: " + std::string(e.what());
 		std::cerr << message << std::endl;
-		const auto response = createErrorResponse(message);
+		response = createErrorResponse(message);
 		res.status = 500;
-		res.set_content(response.dump(), "application/json");
 	}
+	res.set_content(response.dump(), "application/json");
 }
 void UserController::deleteUsers(const httplib::Request& req, httplib::Response& res) const {
+	res.set_header("Content-Type", "application/json");
 	const auto jsonBody = json::parse(req.body);
+	json response;
 	if (not jsonBody.contains("ids")) {
-		const auto response = createErrorResponse("Missing ids parameter");
+		response = createErrorResponse("Missing ids parameter");
 		res.status = 400;
 		res.set_content(response.dump(), "application/json");
 		return;
 	}
 	try {
 		const auto ids = jsonBody["ids"].get<std::vector<unsigned long>>();
-
-		json response;
 		if (const auto deletedIds = userService->deleteUsers(ids);
 			not deletedIds.empty() and deletedIds[0]) {
 			json data;
@@ -208,13 +202,12 @@ void UserController::deleteUsers(const httplib::Request& req, httplib::Response&
 			response = createErrorResponse("Users not deleted");
 			res.status = 400;
 		}
-		res.set_content(response.dump(), "application/json");
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::deleteUsers error: " + std::string(e.what());
 		std::cerr << message << std::endl;
-		const auto response = createErrorResponse(message);
+		response = createErrorResponse(message);
 		res.status = 500;
-		res.set_content(response, "application/json");
 	}
+	res.set_content(response, "application/json");
 }
