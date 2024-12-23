@@ -49,6 +49,7 @@ target_include_directories(orm PUBLIC
 target_link_libraries(orm
         ${PQXX_LIBRARY}
         ${PQ_LIBRARY}
+        nlohmann_json::nlohmann_json
 )
 
 # Set rpath

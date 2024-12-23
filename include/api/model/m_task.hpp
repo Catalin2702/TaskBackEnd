@@ -29,8 +29,10 @@ public:
 	column::ColumnRef<column::SerialColumn> id{std::make_shared<column::SerialColumn>("id", true, false)};
 	column::ColumnRef<column::StringColumn> title{std::make_shared<column::StringColumn>("title", 100)};
 	column::ColumnRef<column::TextColumn> description{std::make_shared<column::TextColumn>("description", false, true)};
-	column::ColumnRef<column::IntegerColumn> categorieId{std::make_shared<column::IntegerColumn>("categorie_id")};
+	column::ColumnRef<column::IntegerColumn> categoryId{std::make_shared<column::IntegerColumn>("category_id")};
 	column::ColumnRef<column::EnumColumn<TaskStatus>> status{std::make_shared<column::EnumColumn<TaskStatus>>("status", TaskStatusDef)};
+
+	[[nodiscard]] json toJson() const override;
 };
 
 #endif //M_TASK_HPP

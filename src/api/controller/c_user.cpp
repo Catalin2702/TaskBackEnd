@@ -23,7 +23,7 @@ void UserController::getUsers(const httplib::Request& req, httplib::Response& re
 			json data;
 			data["users"] = json::array();
 			for (const auto& user: users.value())
-				data["users"].push_back(userService->userToJson(user));
+				data["users"].push_back(user.toJson());
 			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
@@ -54,7 +54,7 @@ void UserController::getUser(const httplib::Request& req, httplib::Response& res
 		json response;
 		if (const auto user = userService->getUser(id); user.has_value()) {
 			json data;
-			data["user"] = userService->userToJson(user.value());
+			data["user"] = user.value().toJson();
 			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
@@ -93,7 +93,7 @@ void UserController::createUser(const httplib::Request& req, httplib::Response& 
 		json response;
 		if (newUser.has_value()) {
 			json data;
-			data["user"] = userService->userToJson(newUser.value());
+			data["user"] = newUser.value().toJson();
 			res.status = 201;
 			response = createSuccessResponse("", data);
 		}
@@ -134,7 +134,7 @@ void UserController::updateUser(const httplib::Request& req, httplib::Response& 
 		if (const auto newUser = userService->updateUser(id, user);
 			newUser.has_value()) {
 			json data;
-			data["user"] = userService->userToJson(newUser.value());
+			data["user"] = newUser.value().toJson();
 			response = createSuccessResponse("", data);
 			res.status = 200;
 		}

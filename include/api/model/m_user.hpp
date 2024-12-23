@@ -19,6 +19,8 @@ public:
 	column::ColumnRef<column::StringColumn> password_hash{std::make_shared<column::StringColumn>("password_hash", 255)};
 	column::ColumnRef<column::TimestampColumn> created{std::make_shared<column::TimestampColumn>("created")};
 	column::ColumnRef<column::TimestampColumn> updated{std::make_shared<column::TimestampColumn>("updated")};
+
+	[[nodiscard]] json toJson() const override;
 };
 
 #endif //M_USER_HPP

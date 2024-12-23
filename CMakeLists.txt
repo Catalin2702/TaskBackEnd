@@ -31,11 +31,11 @@ add_executable(BackEnd src/main.cpp
         include/api/service/s_user.hpp
         include/api/service/service.hpp
         include/api/server.hpp
-        include/api/controller/c_categorie.hpp
+        include/api/controller/c_category.hpp
         include/api/controller/c_task.hpp
-        include/api/model/m_categorie.hpp
+        include/api/model/m_category.hpp
         include/api/model/m_task.hpp
-        include/api/service/s_categorie.hpp
+        include/api/service/s_category.hpp
         include/api/service/s_task.hpp
 
         src/api/controller/c_user.cpp
@@ -45,11 +45,11 @@ add_executable(BackEnd src/main.cpp
         src/api/service/service.cpp
         src/api/server.cpp
         include/api/controller/controller.tpp
-        src/api/controller/c_categorie.cpp
+        src/api/controller/c_category.cpp
         src/api/controller/c_task.cpp
-        src/api/model/m_categorie.cpp
+        src/api/model/m_category.cpp
         src/api/model/m_task.cpp
-        src/api/service/s_categorie.cpp
+        src/api/service/s_category.cpp
         src/api/service/s_task.cpp
 )
 

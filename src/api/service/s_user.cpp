@@ -50,12 +50,3 @@ std::vector<unsigned long> UserService::deleteUsers(const std::vector<unsigned l
 	session->commit();
 	return results;
 }
-json UserService::userToJson(const User& user) {
-	json userJson;
-	userJson["id"] = user.id.getValue();
-	userJson["username"] = user.username.getValue();
-	userJson["email"] = user.email.getValue();
-	userJson["created"] = tools::timestampToString(user.created.getValue());
-	userJson["updated"] = tools::timestampToString(user.updated.getValue());
-	return userJson;
-}

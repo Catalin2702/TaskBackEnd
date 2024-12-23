@@ -21,3 +21,12 @@ User::User(const std::string& username, const std::string& email, const std::str
 	registerColumn<column::TimestampColumn>(created, std::chrono::system_clock::now());
 	registerColumn<column::TimestampColumn>(updated, std::chrono::system_clock::now());
 }
+json User::toJson() const {
+	json userJson;
+	userJson["id"] = id.getValue();
+	userJson["username"] = username.getValue();
+	userJson["email"] = email.getValue();
+	userJson["created"] = tools::timestampToString(created.getValue());
+	userJson["updated"] = tools::timestampToString(updated.getValue());
+	return userJson;
+}

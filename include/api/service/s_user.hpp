@@ -8,14 +8,11 @@
 #include <memory>
 #include <vector>
 #include <nlohmann/json.hpp>
-
 #include <orm/session.hpp>
 #include <tools/tools.hpp>
 
 #include "api/model/m_user.hpp"
 #include "service.hpp"
-
-using json = nlohmann::json;
 
 class UserService final: public Service {
 public:
@@ -26,7 +23,6 @@ public:
 	[[nodiscard]] std::optional<User> updateUser(const unsigned long id, const User& user) const;
 	[[nodiscard]] unsigned long deleteUser(const unsigned long id) const;
 	[[nodiscard]] std::vector<unsigned long> deleteUsers(const std::vector<unsigned long>& ids) const;
-	[[nodiscard]] static json userToJson(const User& user);
 private:
 	std::shared_ptr<session::Session> session;
 };

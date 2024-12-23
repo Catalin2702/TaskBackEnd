@@ -168,6 +168,12 @@ namespace column {
 		return static_cast<T*>(getPtr());
 	}
 	template<typename T>
+	T EnumColumn<T>::getValue() const {
+		if (auto ptr = getPtrValue())
+			return *ptr;
+		throw std::runtime_error("Enum value not set");
+	}
+	template<typename T>
 	void EnumColumn<T>::setValue(const T value) {
 		if (not this->value)
 			throw std::runtime_error("Enum value not set");
@@ -215,7 +221,7 @@ namespace column {
 		if (field.is_null())
 			setNull(true);
 		else {
-			T enumValue = field.as<T>();  // Ottieni direttamente il valore enum
+			T enumValue = field.as<T>();
 			if (const auto mapping = getMapping(); mapping.find(enumValue) == mapping.end()) {
 				throw std::invalid_argument("Value not in mapping");
 			} else {

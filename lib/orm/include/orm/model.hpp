@@ -5,10 +5,13 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <type_traits>
 #include <pqxx/pqxx>
 
 #include "column.hpp"
+
+using json = nlohmann::json;
 
 namespace model {
 	class Model {
@@ -25,6 +28,7 @@ namespace model {
 		void setPrimaryKey(const std::shared_ptr<column::ColumnBase>& primaryKey);
 		Model& operator=(const Model& other);
 		Model& operator=(Model&& other) noexcept = default;
+		[[nodiscard]] virtual json toJson() const = 0;
 	protected:
 		template<typename T>
 		void registerEmptyColumn(std::shared_ptr<T>& property);
