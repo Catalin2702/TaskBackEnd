@@ -5,4 +5,32 @@
 #ifndef M_TASK_HPP
 #define M_TASK_HPP
 
+#include <map>
+#include <orm/column.hpp>
+#include <orm/model.hpp>
+
+enum class TaskStatus {
+	OPEN,
+	IN_PROGRESS,
+	DONE
+};
+
+inline std::map<TaskStatus, std::string> TaskStatusDef {
+	{TaskStatus::OPEN, "OPEN"},
+	{TaskStatus::IN_PROGRESS, "IN_PROGRESS"},
+	{TaskStatus::DONE, "DONE"},
+};
+
+class Task final : public model::Model {
+public:
+	Task();
+	Task(const std::string& title, const std::string& description, const int categorieId, const TaskStatus status);
+
+	column::ColumnRef<column::SerialColumn> id{std::make_shared<column::SerialColumn>("id", true, false)};
+	column::ColumnRef<column::StringColumn> title{std::make_shared<column::StringColumn>("title", 100)};
+	column::ColumnRef<column::TextColumn> description{std::make_shared<column::TextColumn>("description", false, true)};
+	column::ColumnRef<column::IntegerColumn> categorieId{std::make_shared<column::IntegerColumn>("categorie_id")};
+	column::ColumnRef<column::EnumColumn<TaskStatus>> status{std::make_shared<column::EnumColumn<TaskStatus>>("status", TaskStatusDef)};
+};
+
 #endif //M_TASK_HPP

@@ -325,7 +325,7 @@ namespace column {
 
 	class ColumnBase {
 	public:
-		ColumnBase(std::string name, const value::SqlType type, std::string tableName = "", const bool primaryKey = false, const bool nullable = true);
+		ColumnBase(std::string name, const value::SqlType type, std::string tableName = "", const bool primaryKey = false, const bool nullable = false);
 		virtual ~ColumnBase() = default;
 		[[nodiscard]] std::string getName() const;
 		[[nodiscard]] std::string getTableName() const;
@@ -369,7 +369,7 @@ namespace column {
 	class SerialColumn final: public ColumnBase {
 	public:
 		typedef unsigned long value_type;
-		explicit SerialColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
+		explicit SerialColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
 		explicit SerialColumn(const std::string& name, const unsigned long value, const bool primaryKey = false, const bool nullable = false);
 		SerialColumn(const SerialColumn& other);
 		~SerialColumn() override;
@@ -400,8 +400,8 @@ namespace column {
 	class IntegerColumn final: public ColumnBase {
 	public:
 		typedef int value_type;
-		explicit IntegerColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit IntegerColumn(const std::string& name, const int value, const bool primaryKey = false, const bool nullable = true);
+		explicit IntegerColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit IntegerColumn(const std::string& name, const int value, const bool primaryKey = false, const bool nullable = false);
 		IntegerColumn(const IntegerColumn& other);
 		~IntegerColumn() override;
 		[[nodiscard]] int* getPtrValue() const;
@@ -430,8 +430,8 @@ namespace column {
 	class StringColumn final: public ColumnBase {
 	public:
 		typedef std::string value_type;
-		explicit StringColumn(const std::string& name, const size_t length = 255, const bool primaryKey = false, const bool nullable = true);
-		explicit StringColumn(const std::string& name, const std::string& value, const size_t length = 255, const bool primaryKey = false, const bool nullable = true);
+		explicit StringColumn(const std::string& name, const size_t length = 255, const bool primaryKey = false, const bool nullable = false);
+		explicit StringColumn(const std::string& name, const std::string& value, const size_t length = 255, const bool primaryKey = false, const bool nullable = false);
 		StringColumn(const StringColumn& other);
 		~StringColumn() override;
 		[[nodiscard]] std::string* getPtrValue() const;
@@ -468,8 +468,8 @@ namespace column {
 	class TextColumn final: public ColumnBase {
 	public:
 		typedef std::string value_type;
-		explicit TextColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit TextColumn(const std::string& name, const std::string& value, const bool primaryKey = false, const bool nullable = true);
+		explicit TextColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit TextColumn(const std::string& name, const std::string& value, const bool primaryKey = false, const bool nullable = false);
 		TextColumn(const TextColumn& other);
 		~TextColumn() override;
 		[[nodiscard]] std::string* getPtrValue() const;
@@ -504,8 +504,8 @@ namespace column {
 	class DecimalColumn final: public ColumnBase {
 	public:
 		typedef double value_type;
-		explicit DecimalColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit DecimalColumn(const std::string& name, const double value, const bool primaryKey = false, const bool nullable = true);
+		explicit DecimalColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit DecimalColumn(const std::string& name, const double value, const bool primaryKey = false, const bool nullable = false);
 		DecimalColumn(const DecimalColumn& other);
 		~DecimalColumn() override;
 		[[nodiscard]] double* getPtrValue() const;
@@ -534,9 +534,9 @@ namespace column {
 	class DateColumn final: public ColumnBase {
 	public:
 		typedef std::chrono::system_clock::time_point value_type;
-		explicit DateColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit DateColumn(const std::string& name, const std::chrono::system_clock::time_point& value, const bool primaryKey = false, const bool nullable = true);
-		explicit DateColumn(const std::string& name, const std::string& dateStr, const std::string& format = "%Y-%m-%d", const bool primaryKey = false, const bool nullable = true);
+		explicit DateColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit DateColumn(const std::string& name, const std::chrono::system_clock::time_point& value, const bool primaryKey = false, const bool nullable = false);
+		explicit DateColumn(const std::string& name, const std::string& dateStr, const std::string& format = "%Y-%m-%d", const bool primaryKey = false, const bool nullable = false);
 		DateColumn(const DateColumn& other);
 		~DateColumn() override;
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtrValue() const;
@@ -581,9 +581,9 @@ namespace column {
 	class TimeColumn final: public ColumnBase {
 	public:
 		typedef std::chrono::seconds value_type;
-		explicit TimeColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit TimeColumn(const std::string& name, const std::chrono::seconds& value, const bool primaryKey = false, const bool nullable = true);
-		explicit TimeColumn(const std::string& name, const std::string& timeStr, const std::string& format = "%H-%M-%S", const bool primaryKey = false, const bool nullable = true);
+		explicit TimeColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit TimeColumn(const std::string& name, const std::chrono::seconds& value, const bool primaryKey = false, const bool nullable = false);
+		explicit TimeColumn(const std::string& name, const std::string& timeStr, const std::string& format = "%H-%M-%S", const bool primaryKey = false, const bool nullable = false);
 		TimeColumn(const TimeColumn& other);
 		~TimeColumn() override;
 		[[nodiscard]] std::chrono::seconds* getPtrValue() const;
@@ -628,9 +628,9 @@ namespace column {
 	class DateTimeColumn final: public ColumnBase {
 	public:
 		typedef std::chrono::system_clock::time_point value_type;
-		explicit DateTimeColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit DateTimeColumn(const std::string& name, const std::chrono::system_clock::time_point& value, const bool primaryKey = false, const bool nullable = true);
-		explicit DateTimeColumn(const std::string& name, const std::string& dateTimeStr, const std::string& format = "%Y-%m-%d %H:%M:%S", const bool primaryKey = false, const bool nullable = true);
+		explicit DateTimeColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit DateTimeColumn(const std::string& name, const std::chrono::system_clock::time_point& value, const bool primaryKey = false, const bool nullable = false);
+		explicit DateTimeColumn(const std::string& name, const std::string& dateTimeStr, const std::string& format = "%Y-%m-%d %H:%M:%S", const bool primaryKey = false, const bool nullable = false);
 		DateTimeColumn(const DateTimeColumn& other);
 		~DateTimeColumn() override;
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtrValue() const;
@@ -675,9 +675,9 @@ namespace column {
 	class TimestampColumn final: public ColumnBase {
 	public:
 		typedef std::chrono::system_clock::time_point value_type;
-		explicit TimestampColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit TimestampColumn(const std::string& name, const std::chrono::system_clock::time_point& value, const bool primaryKey = false, const bool nullable = true);
-		explicit TimestampColumn(const std::string& name, const std::string& dateTimeStr, const std::string& format = "%Y-%m-%d %H:%M:%S", const bool primaryKey = false, const bool nullable = true);
+		explicit TimestampColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit TimestampColumn(const std::string& name, const std::chrono::system_clock::time_point& value, const bool primaryKey = false, const bool nullable = false);
+		explicit TimestampColumn(const std::string& name, const std::string& dateTimeStr, const std::string& format = "%Y-%m-%d %H:%M:%S", const bool primaryKey = false, const bool nullable = false);
 		TimestampColumn(const TimestampColumn& other);
 		~TimestampColumn() override;
 		[[nodiscard]] std::chrono::system_clock::time_point* getPtrValue() const;
@@ -722,9 +722,9 @@ namespace column {
 	class BooleanColumn final: public ColumnBase {
 	public:
 		typedef bool value_type;
-		explicit BooleanColumn(const std::string& name, const bool primaryKey = false, const bool nullable = true);
-		explicit BooleanColumn(const std::string& name, const bool value, const bool primaryKey = false, const bool nullable = true);
-		explicit BooleanColumn(const std::string& name, const int value, const bool primaryKey = false, const bool nullable = true);
+		explicit BooleanColumn(const std::string& name, const bool primaryKey = false, const bool nullable = false);
+		explicit BooleanColumn(const std::string& name, const bool value, const bool primaryKey = false, const bool nullable = false);
+		explicit BooleanColumn(const std::string& name, const int value, const bool primaryKey = false, const bool nullable = false);
 		BooleanColumn(const BooleanColumn& other);
 		~BooleanColumn() override;
 		[[nodiscard]] bool* getPtrValue() const;
@@ -758,11 +758,11 @@ namespace column {
 	class EnumColumn final: public ColumnBase {
 	public:
 		typedef T value_type;
-		explicit EnumColumn(const std::string& name, const std::map<T, std::string> mapping, const bool primaryKey = false, const bool nullable = true);
-		explicit EnumColumn(const std::string& name, const T value, const std::map<T, std::string> mapping,   const bool primaryKey = false, const bool nullable = true);
+		explicit EnumColumn(const std::string& name, const std::map<T, std::string> mapping, const bool primaryKey = false, const bool nullable = false);
+		explicit EnumColumn(const std::string& name, const T value, const std::map<T, std::string> mapping,   const bool primaryKey = false, const bool nullable = false);
 		EnumColumn(const EnumColumn& other);
 		~EnumColumn() override;
-		[[nodiscard]] const std::map<T, std::string>& getMapping() const;
+		[[nodiscard]] std::map<T, std::string> getMapping() const;
 		[[nodiscard]] T* getPtrValue() const;
 		[[nodiscard]] T getValue() const;
 		[[nodiscard]] std::string getValueAsString() const override;

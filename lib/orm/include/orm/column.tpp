@@ -4,15 +4,13 @@ namespace value {
 
 	template<typename T>
 	EnumValue<T>::EnumValue(const std::map<T, std::string> &mapping, const T *value):
-	SqlValue(SqlType::Enum), mapping(mapping), value(value ? *value : mapping.begin()->first) {
-		if (not mapping.count(value)) throw std::invalid_argument("Value not in mapping");
+	SqlValue(SqlType::Enum), value(value ? *value : mapping.begin()->first), mapping(mapping) {
+		if (mapping.find(*value) == mapping.end())
+			throw std::invalid_argument("Value not in mapping");
 	}
 	template<typename T>
 	std::string EnumValue<T>::toString() const {
-		if constexpr (std::is_same_v<T, std::string>)
-			return value;
-		else
-			return std::to_string(value);
+		return mapping.at(value);
 	}
 	template<typename T>
 	const std::map<T, std::string>& EnumValue<T>::getMapping() const {
@@ -161,8 +159,8 @@ namespace column {
 		if (this->value)
 			this->value.reset();
 	}
-	template<typename T>
-	const std::map<T, std::string>& EnumColumn<T>::getMapping() const {
+	template <typename T>
+	std::map<T, std::string> EnumColumn<T>::getMapping() const {
 		return this->value ? this->value->getMapping() : std::map<T, std::string>();
 	}
 	template<typename T>
@@ -187,10 +185,7 @@ namespace column {
 	template <typename T>
 	std::string EnumColumn<T>::getValueAsString() const {
 		if (auto ptr = getPtrValue()) {
-			if constexpr (std::is_same_v<T, std::string>)
-				return *ptr;
-			else
-				return std::to_string(*ptr);
+			return getMapping().at(*ptr);
 		}
 		return "null";
 	}
@@ -206,11 +201,12 @@ namespace column {
 		if (ptr == nullptr)
 			setNull();
 		else {
-			auto val = std::make_unique<value::EnumValue<T>>(*static_cast<const T*>(ptr));
-			if (getMapping().count(*val))
-				value = val;
-			else
+			T enumValue = *static_cast<const T*>(ptr);
+			if (const auto mapping = getMapping(); mapping.find(enumValue) == mapping.end()) {
 				throw std::invalid_argument("Value not in mapping");
+			} else {
+				value = std::make_unique<value::EnumValue<T>>(mapping, &enumValue);
+			}
 		}
 		markDirty();
 	}
@@ -219,11 +215,12 @@ namespace column {
 		if (field.is_null())
 			setNull(true);
 		else {
-			auto val = std::make_unique<value::EnumValue<T>>(field.as<T>());
-			if (getMapping().count(*val))
-				value = val;
-			else
+			T enumValue = field.as<T>();  // Ottieni direttamente il valore enum
+			if (const auto mapping = getMapping(); mapping.find(enumValue) == mapping.end()) {
 				throw std::invalid_argument("Value not in mapping");
+			} else {
+				value = std::make_unique<value::EnumValue<T>>(mapping, &enumValue);
+			}
 		}
 	}
 	template<typename T>
