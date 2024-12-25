@@ -24,6 +24,8 @@ public:
 	void updateCategory(const httplib::Request& req, httplib::Response& res) const;
 	void deleteCategory(const httplib::Request& req, httplib::Response& res) const;
 	void deleteCategories(const httplib::Request& req, httplib::Response& res) const;
+	void deleteUsersCategories(const httplib::Request& req, httplib::Response& res) const;
+	void deleteUserCategories(const httplib::Request& req, httplib::Response& res) const;
 private:
 	std::shared_ptr<CategoryService> categoryService;
 };

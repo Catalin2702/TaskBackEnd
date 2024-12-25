@@ -282,3 +282,66 @@ void CategoryController::deleteCategories(const httplib::Request& req, httplib::
 	}
 	res.set_content(response.dump(), "application/json");
 }
+void CategoryController::deleteUsersCategories(const httplib::Request& req, httplib::Response& res) const {
+	res.set_header("Content-Type", "application/json");
+	const auto jsonBody = json::parse(req.body);
+	json response;
+	if (not jsonBody.contains("userIds")) {
+		response = createErrorResponse("Missing userIds parameter");
+		res.status = 400;
+		res.set_content(response.dump(), "application/json");
+		return;
+	}
+	try {
+		const auto userIds = jsonBody["userIds"].get<std::vector<unsigned long>>();
+		if (const auto deletedIds = categoryService->deleteUsersCategories(userIds);
+			not deletedIds.empty()) {
+			json data;
+			data["ids"] = deletedIds;
+			response = createSuccessResponse("", data);
+			res.status = 200;
+		}
+		else {
+			response = createErrorResponse("Categories not deleted");
+			res.status = 400;
+		}
+	}
+	catch (std::exception& e) {
+		const std::string message =  "CategoryController::deleteUsersCategories error: " + std::string(e.what());
+		std::cerr << message << std::endl;
+		response = createErrorResponse(message);
+		res.status = 500;
+	}
+	res.set_content(response.dump(), "application/json");
+}
+void CategoryController::deleteUserCategories(const httplib::Request& req, httplib::Response& res) const {
+	res.set_header("Content-Type", "application/json");
+	const auto jsonBody = json::parse(req.body);
+	json response;
+	if (not jsonBody.contains("userId")) {
+		response = createErrorResponse("Missing userId parameter");
+		res.status = 400;
+		res.set_content(response.dump(), "application/json");
+		return;
+	}
+	try {
+		const auto userId = jsonBody["userId"].get<unsigned long>();
+		if (const auto deletedId = categoryService->deleteUserCategories(userId); deletedId) {
+			json data;
+			data["id"] = deletedId;
+			response = createSuccessResponse("", data);
+			res.status = 200;
+		}
+		else {
+			response = createErrorResponse("Categories not deleted");
+			res.status = 400;
+		}
+	}
+	catch (std::exception& e) {
+		const std::string message =  "CategoryController::deleteUserCategories error: " + std::string(e.what());
+		std::cerr << message << std::endl;
+		response = createErrorResponse(message);
+		res.status = 500;
+	}
+	res.set_content(response.dump(), "application/json");
+}

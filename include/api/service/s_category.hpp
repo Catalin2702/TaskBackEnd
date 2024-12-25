@@ -7,7 +7,6 @@
 
 #include <memory>
 #include <vector>
-#include <nlohmann/json.hpp>
 #include <orm/session.hpp>
 
 #include "api/model/m_category.hpp"
@@ -15,7 +14,7 @@
 
 class CategoryService final: public Service {
 public:
-	explicit CategoryService(std::shared_ptr<session::Session> session);
+	explicit CategoryService(const std::shared_ptr<session::Session>& session);
 	[[nodiscard]] std::optional<std::vector<Category>> getCategories(const std::vector<unsigned long>& ids = {}) const;
 	[[nodiscard]] std::optional<std::vector<Category>> getUserCategories(const unsigned long userId) const;
 	[[nodiscard]] std::optional<std::vector<Category>> getUsersCategories(const std::vector<unsigned long>& userIds = {}) const;
@@ -24,6 +23,8 @@ public:
 	[[nodiscard]] std::optional<Category> updateCategory(const unsigned long id, const Category& categorie) const;
 	[[nodiscard]] unsigned long deleteCategory(const unsigned long id) const;
 	[[nodiscard]] std::vector<unsigned long> deleteCategories(const std::vector<unsigned long>& ids) const;
+	[[nodiscard]] std::vector<unsigned long> deleteUsersCategories(const std::vector<unsigned long>& userIds) const;
+    [[nodiscard]] unsigned long deleteUserCategories(const unsigned long userId) const;
 private:
 	std::shared_ptr<session::Session> session;
 };
