@@ -51,7 +51,6 @@ void CategoryController::getUserCategories(const httplib::Request& req, httplib:
 		return;
 	}
 	try {
-		
 		const auto userId = std::stoul(req.get_param_value("userId"));
 		if (const auto categories = categoryService->getUserCategories(userId);
 			categories.has_value()) {
@@ -143,8 +142,7 @@ void CategoryController::getCategory(const httplib::Request& req, httplib::Respo
 void CategoryController::createCategory(const httplib::Request& req, httplib::Response& res) const {
 	res.set_header("Content-Type", "application/json");
 	json response;
-	const std::vector<std::string> params = {"title", "userId"};
-	if (const auto missingParam = checkMissingParamsPOST(params, req); not missingParam.empty()) {
+	if (const auto missingParam = checkMissingParamsPOST({"title", "userId"}, req); not missingParam.empty()) {
 		const std::string message =  "CategoryController::createCategory error: Missing parameters: " + missingParam;
 		std::cerr << message << std::endl;
 		response = createErrorResponse(message);
@@ -156,9 +154,9 @@ void CategoryController::createCategory(const httplib::Request& req, httplib::Re
 		json jsonBody = json::parse(req.body);
 		const auto title = jsonBody["title"].get<std::string>();
 		const auto userId = jsonBody["userId"].get<int>();
-		const auto description = getParamValueFromJson<std::string>("description", jsonBody);
+		const auto description = getParamValueFromJson("description", jsonBody);
 
-		if (const auto newCategory = categoryService->createCategory(Category(title, userId, description));
+		if (const auto newCategory = categoryService->createCategory(title, userId, description);
 			newCategory.has_value()) {
 			json data;
 			data["category"] = newCategory.value().toJson();
@@ -189,17 +187,17 @@ void CategoryController::updateCategory(const httplib::Request& req, httplib::Re
 		return;
 	}
 	try {
-		Category category{};
 		const auto id = jsonBody["id"].get<unsigned long>();
-		if (const auto title = getParamValueFromJson<std::string>("title", jsonBody); not title.empty())
-			category.title = title;
-		if (const auto description = getParamValueFromJson<std::string>("description", jsonBody); not description.empty())
-			category.description = description;
-		if (const auto userId = getParamValueFromJson<int>("userId", jsonBody); userId)
-			category.userId = userId;
-		category.updated = std::chrono::system_clock::now();
+		std::optional<std::string> title, description;
+		std::optional<int> userId;
+		if (jsonBody.contains("title"))
+			title = jsonBody["title"].get<std::string>();
+		if (jsonBody.contains("description"))
+			description = jsonBody["description"].get<std::string>();
+		if (jsonBody.contains("userId"))
+			userId = jsonBody["userId"].get<int>();
 
-		if (const auto updatedCategory = categoryService->updateCategory(id, category);
+		if (const auto updatedCategory = categoryService->updateCategory(id, title, userId, description);
 			updatedCategory.has_value()) {
 			json data;
 			data["category"] = updatedCategory.value().toJson();
@@ -263,7 +261,7 @@ void CategoryController::deleteCategories(const httplib::Request& req, httplib::
 	try {
 		const auto ids = jsonBody["ids"].get<std::vector<unsigned long>>();
 		if (const auto deletedIds = categoryService->deleteCategories(ids);
-			not deletedIds.empty()) {
+			not deletedIds.empty() and deletedIds.front() != 0) {
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);
@@ -295,7 +293,7 @@ void CategoryController::deleteUsersCategories(const httplib::Request& req, http
 	try {
 		const auto userIds = jsonBody["userIds"].get<std::vector<unsigned long>>();
 		if (const auto deletedIds = categoryService->deleteUsersCategories(userIds);
-			not deletedIds.empty()) {
+			not deletedIds.empty() and deletedIds.front() != 0) {
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);

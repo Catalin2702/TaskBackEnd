@@ -26,6 +26,10 @@ public:
 	void updateTask(const httplib::Request& req, httplib::Response& res) const;
 	void deleteTask(const httplib::Request& req, httplib::Response& res) const;
 	void deleteTasks(const httplib::Request& req, httplib::Response& res) const;
+	void deleteCategoriesTasks(const httplib::Request& req, httplib::Response& res) const;
+	void deleteCategoryTasks(const httplib::Request& req, httplib::Response& res) const;
+	void deleteUsersTasks(const httplib::Request& req, httplib::Response& res) const;
+	void deleteUserTasks(const httplib::Request& req, httplib::Response& res) const;
 private:
 	std::shared_ptr<TaskService> taskService;
 };

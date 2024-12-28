@@ -19,8 +19,8 @@ public:
 	[[nodiscard]] std::optional<std::vector<Category>> getUserCategories(const unsigned long userId) const;
 	[[nodiscard]] std::optional<std::vector<Category>> getUsersCategories(const std::vector<unsigned long>& userIds = {}) const;
 	[[nodiscard]] std::optional<Category> getCategory(const unsigned long id = 0) const;
-	[[nodiscard]] std::optional<Category> createCategory(const Category& categorie) const;
-	[[nodiscard]] std::optional<Category> updateCategory(const unsigned long id, const Category& categorie) const;
+	[[nodiscard]] std::optional<Category> createCategory(const std::string& title, const int userId, const std::string& description = "") const;
+	[[nodiscard]] std::optional<Category> updateCategory(const unsigned long id, const std::optional<std::string>& title, const std::optional<int> userId, const std::optional<std::string>& description) const;
 	[[nodiscard]] unsigned long deleteCategory(const unsigned long id) const;
 	[[nodiscard]] std::vector<unsigned long> deleteCategories(const std::vector<unsigned long>& ids) const;
 	[[nodiscard]] std::vector<unsigned long> deleteUsersCategories(const std::vector<unsigned long>& userIds) const;

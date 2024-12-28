@@ -47,14 +47,22 @@ std::optional<Category> CategoryService::getCategory(const unsigned long id) con
 	this->session->commit();
 	return result;
 }
-std::optional<Category> CategoryService::createCategory(const Category& categorie) const {
-	const auto results = this->session->query(categorie).insert();
+std::optional<Category> CategoryService::createCategory(const std::string& title, const int userId, const std::string& description) const {
+	const auto results = this->session->query(Category{title, userId, description}).insert();
 	this->session->commit();
 	if (results.has_value())
 		return results->front();
 	return std::nullopt;
 }
-std::optional<Category> CategoryService::updateCategory(const unsigned long id, const Category& categorie) const {
+std::optional<Category> CategoryService::updateCategory(const unsigned long id, const std::optional<std::string>& title, const std::optional<int> userId, const std::optional<std::string>& description) const {
+	Category categorie{};
+	if (title.has_value())
+		categorie.title = title.value();
+	if (userId.has_value())
+		categorie.userId = userId.value();
+	if (description.has_value())
+		categorie.description = description.value();
+	categorie.updated = std::chrono::system_clock::now();
 	const auto results = this->session->query(categorie).filter(categorie.id == id).update();
 	this->session->commit();
 	if (results.has_value())
