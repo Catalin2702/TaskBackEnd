@@ -6,46 +6,46 @@ set(CMAKE_CXX_STANDARD 17)
 # Configura cpp-httplib
 include(FetchContent)
 FetchContent_Declare(
-        httplib
-        GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-        GIT_TAG v0.14.1
+	httplib
+	GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+	GIT_TAG v0.14.1
 )
 FetchContent_Declare(
-        json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
+	json
+	URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
 FetchContent_MakeAvailable(httplib json)
 
 # Aggiungi l'eseguibile principale
 add_executable(BackEnd src/main.cpp
-        src/params.hpp
+	src/params.hpp
 
-        include/api/controller/c_user.hpp
-        include/api/controller/controller.hpp
-        include/api/model/m_user.hpp
-        include/api/service/s_user.hpp
-        include/api/service/service.hpp
-        include/api/server.hpp
-        include/api/controller/c_category.hpp
-        include/api/controller/c_task.hpp
-        include/api/model/m_category.hpp
-        include/api/model/m_task.hpp
-        include/api/service/s_category.hpp
-        include/api/service/s_task.hpp
+	include/api/controller/c_user.hpp
+	include/api/controller/controller.hpp
+	include/api/model/m_user.hpp
+	include/api/service/s_user.hpp
+	include/api/service/service.hpp
+	include/api/server.hpp
+	include/api/controller/c_category.hpp
+	include/api/controller/c_task.hpp
+	include/api/model/m_category.hpp
+	include/api/model/m_task.hpp
+	include/api/service/s_category.hpp
+	include/api/service/s_task.hpp
 
-        src/api/controller/c_user.cpp
-        src/api/controller/controller.cpp
-        src/api/model/m_user.cpp
-        src/api/service/s_user.cpp
-        src/api/service/service.cpp
-        src/api/server.cpp
-        include/api/controller/controller.tpp
-        src/api/controller/c_category.cpp
-        src/api/controller/c_task.cpp
-        src/api/model/m_category.cpp
-        src/api/model/m_task.cpp
-        src/api/service/s_category.cpp
-        src/api/service/s_task.cpp
+	src/api/controller/c_user.cpp
+	src/api/controller/controller.cpp
+	src/api/model/m_user.cpp
+	src/api/service/s_user.cpp
+	src/api/service/service.cpp
+	src/api/server.cpp
+	include/api/controller/controller.tpp
+	src/api/controller/c_category.cpp
+	src/api/controller/c_task.cpp
+	src/api/model/m_category.cpp
+	src/api/model/m_task.cpp
+	src/api/service/s_category.cpp
+	src/api/service/s_task.cpp
 )
 
 # Aggiungi la libreria orm
@@ -54,20 +54,20 @@ add_subdirectory(lib/orm)
 include_directories(include)
 
 if (APPLE)
-    set_target_properties(BackEnd PROPERTIES
-            BUILD_WITH_INSTALL_RPATH TRUE
-            INSTALL_RPATH "@loader_path;@loader_path/../lib;${CPP_HTTPLIB_ROOT}"
-    )
+	set_target_properties(BackEnd PROPERTIES
+		BUILD_WITH_INSTALL_RPATH TRUE
+		INSTALL_RPATH "@loader_path;@loader_path/../lib;${CPP_HTTPLIB_ROOT}"
+	)
 endif ()
 
 # Corretto ordine in target_link_libraries
 target_link_libraries(BackEnd
-        PRIVATE
-        httplib::httplib
-        nlohmann_json::nlohmann_json
-        orm
+	PRIVATE
+	httplib::httplib
+	nlohmann_json::nlohmann_json
+	orm
 )
 
 target_precompile_headers(BackEnd PRIVATE
-        <httplib.h>
+	<httplib.h>
 )
