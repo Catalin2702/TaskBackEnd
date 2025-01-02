@@ -309,6 +309,14 @@ namespace column {
 		return column;
 	}
 	template<typename T>
+	ColumnRef<T>::operator ColumnBase*() {
+		return column.get();
+	}
+	template<typename T>
+	ColumnRef<T>::operator ColumnRef<ColumnBase>() const {
+		return ColumnRef<ColumnBase>(std::static_pointer_cast<ColumnBase>(column));
+	}
+	template<typename T>
 	T* ColumnRef<T>::operator->() const {
 		return column.get();
 	}
@@ -354,6 +362,18 @@ namespace column {
 	template<typename T>
 	std::shared_ptr<T>& ColumnRef<T>::get() {
 		return column;
+	}
+	template<typename T>
+	std::string ColumnRef<T>::getName() const {
+		return column->getName();
+	}
+	template<typename T>
+	std::string ColumnRef<T>::getTableName() const {
+		return column->getTableName();
+	}
+	template<typename T>
+	std::string ColumnRef<T>::getFullName() const {
+		return column->getFullName();
 	}
 	template<typename T>
 	typename T::value_type* ColumnRef<T>::getPtrValue() const {

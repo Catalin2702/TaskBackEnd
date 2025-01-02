@@ -55,6 +55,18 @@ namespace session {
 		query.condition = condition.toString();
 		return query;
 	}
+	template<typename M>
+	Query<M> Query<M>::orderBy(const std::vector<OrderPair>& columns) const {
+		Query query(model, session);
+		query.order = buildOrderBy(columns);
+		return query;
+	}
+	template<typename M>
+	Query<M> Query<M>::orderBy(const OrderPair& column) const {
+		Query query(model, session);
+		query.order = buildOrderBy(std::vector<OrderPair>{column});
+		return query;
+	}
 	template <typename M>
 	std::optional<std::vector<M>> Query<M>::all() {
 		finalQuery = buildSelectQuery();
@@ -143,12 +155,35 @@ namespace session {
 		return columns;
 	}
 	template <typename M>
+	std::string Query<M>::buildOrderBy(const std::vector<OrderPair> columns) const {
+		if (columns.empty())
+			return "";
+		std::vector<std::string> columnNames;
+		std::vector<std::string> orderValue;
+		columnNames.reserve(columns.size());
+		orderValue.reserve(columns.size());
+		for (const auto& [fst, snd] : columns) {
+			columnNames.push_back(fst.getFullName());
+			orderValue.push_back(OrderDef.at(snd));
+		}
+		std::ostringstream orderQuery;
+		for (size_t i = 0; i < columnNames.size(); ++i) {
+			orderQuery << columnNames[i] << " " << orderValue[i];
+			if (i < columnNames.size() - 1)
+				orderQuery << ", ";
+		}
+		return orderQuery.str();
+	}
+
+	template <typename M>
 	std::string Query<M>::buildSelectQuery(const unsigned int limit) {
 		std::ostringstream queryString;
 		queryString << "SELECT " << tools::join(getColumnNames(), ", ") << std::endl;
 		queryString << "FROM " << model.getTableName() << std::endl;
 		if (not condition.empty())
 			queryString << "WHERE " << condition << std::endl;
+		if (not order.empty())
+			queryString << "ORDER BY " << order << std::endl;
 		if (limit > 0)
 			queryString << "LIMIT " << limit << std::endl;
 		queryString << ";" << std::endl;

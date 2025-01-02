@@ -5,7 +5,9 @@
 #ifndef SESSION_HPP
 #define SESSION_HPP
 
+#include <map>
 #include <memory>
+#include <optional>
 #include <pqxx/pqxx>
 #include <vector>
 #include <type_traits>
@@ -45,6 +47,18 @@ namespace session {
 		std::unique_ptr<database::Database> db;
 	};
 
+	enum class Order {
+		ASC,
+		DESC
+	};
+
+	inline const std::map<Order, std::string> OrderDef {
+		{Order::ASC, "ASC"},
+		{Order::DESC, "DESC"}
+	};
+
+	using OrderPair = std::pair<column::ColumnRef<column::ColumnBase>, Order>;
+
 	template<typename M>
 	class Query {
 	public:
@@ -57,6 +71,16 @@ namespace session {
 		Query filter(const std::string& condition) const;
 		template <typename T>
 		Query filter(condition::Condition<T> condition) const;
+		// template<typename T>
+		// Query orderBy(const T& column, const Order order = Order::ASC) const;
+		// template<typename T>
+		// Query orderBy(const std::vector<std::pair<T, Order>>& columns) const;
+		// template<typename T>
+		// Query orderBy(const column::ColumnRef<T>& column, const Order order = Order::ASC) const;
+		// template<typename T>
+		// Query orderBy(const std::vector<std::pair<column::ColumnRef<T>, Order>>& columns) const;
+		Query orderBy(const std::vector<OrderPair>& columns) const;
+		Query orderBy(const OrderPair& column) const;
 
 		[[nodiscard]] std::optional<std::vector<M>> all();
 		[[nodiscard]] std::optional<M> first();
@@ -72,12 +96,14 @@ namespace session {
 		[[nodiscard]] std::vector<std::shared_ptr<column::ColumnBase>> getDirtyColumns() const;
 		[[nodiscard]] std::vector<std::string> getColumnNames() const;
 		[[nodiscard]] std::shared_ptr<column::ColumnBase> getPrimaryKey();
+		[[nodiscard]] std::string buildOrderBy(const std::vector<OrderPair> columns) const;
 		[[nodiscard]] std::string buildSelectQuery(const unsigned int limit = 0);
 		[[nodiscard]] std::string buildSingleInsertQuery() const;
 		[[nodiscard]] std::string buildBatchInsertQuery() const;
 		[[nodiscard]] std::string buildUpdateQuery(const std::vector<std::string>& columns = {});
 		[[nodiscard]] std::string buildDeleteQuery();
 		std::string condition;
+		std::string order;
 		std::string finalQuery;
 		bool isBatch;
 		M model;

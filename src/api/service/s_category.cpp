@@ -7,42 +7,42 @@ CategoryService::CategoryService(const std::shared_ptr<session::Session>& sessio
 	session(session) {}
 
 std::optional<std::vector<Category>> CategoryService::getCategories(const std::vector<unsigned long>& ids) const {
-	const Category categorie{};
-	auto query = this->session->query(categorie);
+	const Category category{};
+	auto query = this->session->query(category);
 	if (not ids.empty())
-		query = query.filter(categorie.id.in(ids));
+		query = query.filter(category.id.in(ids));
 	const auto results = query.all();
 	this->session->commit();
 	return results;
 }
 std::optional<std::vector<Category>> CategoryService::getUserCategories(const unsigned long userId) const {
-	const Category categorie{};
-	auto query = this->session->query(categorie);
-	query = query.filter(categorie.userId == static_cast<int>(userId));
+	const Category category{};
+	auto query = this->session->query(category);
+	query = query.filter(category.userId == static_cast<int>(userId));
 	const auto results = query.all();
 	this->session->commit();
 	return results;
 }
 std::optional<std::vector<Category>> CategoryService::getUsersCategories(const std::vector<unsigned long>& userIds) const {
-	const Category categorie{};
-	auto query = this->session->query(categorie);
+	const Category category{};
+	auto query = this->session->query(category);
 	if (not userIds.empty()) {
 		std::vector<int> intUserIds;
 		intUserIds.reserve(userIds.size());
 		for (const auto& id : userIds) {
 			intUserIds.push_back(static_cast<int>(id));
 		}
-		query = query.filter(categorie.userId.in(intUserIds));
+		query = query.filter(category.userId.in(intUserIds));
 	}
 	const auto results = query.all();
 	this->session->commit();
 	return results;
 }
 std::optional<Category> CategoryService::getCategory(const unsigned long id) const {
-	Category categorie{};
-	auto query = this->session->query(categorie);
+	Category category{};
+	auto query = this->session->query(category);
 	if (id)
-		query = query.filter(categorie.id == id);
+		query = query.filter(category.id == id);
 	const auto result = query.first();
 	this->session->commit();
 	return result;
@@ -55,46 +55,46 @@ std::optional<Category> CategoryService::createCategory(const std::string& title
 	return std::nullopt;
 }
 std::optional<Category> CategoryService::updateCategory(const unsigned long id, const std::optional<std::string>& title, const std::optional<int> userId, const std::optional<std::string>& description) const {
-	Category categorie{};
+	Category category{};
 	if (title.has_value())
-		categorie.title = title.value();
+		category.title = title.value();
 	if (userId.has_value())
-		categorie.userId = userId.value();
+		category.userId = userId.value();
 	if (description.has_value())
-		categorie.description = description.value();
-	categorie.updated = std::chrono::system_clock::now();
-	const auto results = this->session->query(categorie).filter(categorie.id == id).update();
+		category.description = description.value();
+	category.updated = std::chrono::system_clock::now();
+	const auto results = this->session->query(category).filter(category.id == id).update();
 	this->session->commit();
 	if (results.has_value())
 		return results.value();
 	return std::nullopt;
 }
 unsigned long CategoryService::deleteCategory(const unsigned long id) const {
-	const Category categorie{};
-	const auto results = this->session->query(categorie).filter(categorie.id == id).remove();
+	const Category category{};
+	const auto results = this->session->query(category).filter(category.id == id).remove();
 	this->session->commit();
 	return results.front();
 }
 std::vector<unsigned long> CategoryService::deleteCategories(const std::vector<unsigned long>& ids) const {
-	const Category categorie{};
-	const auto results = this->session->query(categorie).filter(categorie.id.in(ids)).remove();
+	const Category category{};
+	const auto results = this->session->query(category).filter(category.id.in(ids)).remove();
 	this->session->commit();
 	return results;
 }
 std::vector<unsigned long> CategoryService::deleteUsersCategories(const std::vector<unsigned long>& userIds) const {
-	const Category categorie{};
+	const Category category{};
 	std::vector<int> intUserIds;
 	intUserIds.reserve(userIds.size());
 	for (const auto& id : userIds) {
 		intUserIds.push_back(static_cast<int>(id));
 	}
-	const auto results = this->session->query(categorie).filter(categorie.userId.in(intUserIds)).remove();
+	const auto results = this->session->query(category).filter(category.userId.in(intUserIds)).remove();
 	this->session->commit();
 	return results;
 }
 unsigned long CategoryService::deleteUserCategories(const unsigned long userId) const {
-	const Category categorie{};
-	const auto results = this->session->query(categorie).filter(categorie.userId == static_cast<int>(userId)).remove();
+	const Category category{};
+	const auto results = this->session->query(category).filter(category.userId == static_cast<int>(userId)).remove();
 	this->session->commit();
 	return results.front();
 }

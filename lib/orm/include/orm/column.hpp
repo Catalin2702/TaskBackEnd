@@ -325,6 +325,7 @@ namespace column {
 
 	class ColumnBase {
 	public:
+		typedef std::string value_type;
 		ColumnBase(std::string name, const value::SqlType type, std::string tableName = "", const bool primaryKey = false, const bool nullable = false);
 		virtual ~ColumnBase() = default;
 		[[nodiscard]] std::string getName() const;
@@ -802,6 +803,8 @@ namespace column {
 
 		operator std::shared_ptr<T>();
 		operator std::shared_ptr<T>&();
+		operator ColumnBase*();
+		operator ColumnRef<ColumnBase>() const;
 		T* operator->() const;
 		T& operator*() const;
 
@@ -821,6 +824,9 @@ namespace column {
 		condition::Condition<value_type> operator >= (const value_type& value) const;
 
 		std::shared_ptr<T>& get();
+		[[nodiscard]] std::string getName() const;
+		[[nodiscard]] std::string getTableName() const;
+		[[nodiscard]] std::string getFullName() const;
 		value_type* getPtrValue() const;
 		value_type getValue() const;
 		[[nodiscard]] std::string getValueAsString() const;
