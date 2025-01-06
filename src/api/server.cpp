@@ -10,88 +10,36 @@
 #endif
 
 void Server::setupCategoryRoutes() {
-	srv.Get("/categories", [this](const auto& req, auto& res) {
-		categoryController->getCategories(req, res);
-	});
-	srv.Get("/userCategories", [this](const auto& req, auto& res) {
-		categoryController->getUserCategories(req, res);
-	});
-	srv.Get("/usersCategories", [this](const auto& req, auto& res) {
-		categoryController->getUsersCategories(req, res);
-	});
-	srv.Get("/category", [this](const auto& req, auto& res) {
-		categoryController->getCategory(req, res);
-	});
-	srv.Post("/createCategory", [this](const auto& req, auto& res) {
-		categoryController->createCategory(req, res);
-	});
-	srv.Post("/updateCategory", [this](const auto& req, auto& res) {
-		categoryController->updateCategory(req, res);
-	});
-	srv.Post("/deleteCategory", [this](const auto& req, auto& res) {
-		categoryController->deleteCategory(req, res);
-	});
-	srv.Post("/deleteCategories", [this](const auto& req, auto& res) {
-		categoryController->deleteCategories(req, res);
-	});
-	srv.Post("/deleteUsersCategories", [this](const auto& req, auto& res) {
-		categoryController->deleteUsersCategories(req, res);
-	});
-	srv.Post("/deleteUserCategories", [this](const auto& req, auto& res) {
-		categoryController->deleteUserCategories(req, res);
-	});
+	srv.Get("/category", [this](const auto& req, auto& res) { categoryController->getCategory(req, res); });
+	srv.Get("/categories", [this](const auto& req, auto& res) { categoryController->getCategories(req, res); });
+	srv.Get("/categories/user", [this](const auto& req, auto& res) { categoryController->getUserCategories(req, res); });
+	srv.Get("/categories/users", [this](const auto& req, auto& res) { categoryController->getUsersCategories(req, res); });
+	srv.Post("/category", [this](const auto& req, auto& res) { categoryController->createCategory(req, res); });
+	srv.Put("/category", [this](const auto& req, auto& res) { categoryController->updateCategory(req, res); });
+	srv.Delete("/category", [this](const auto& req, auto& res) { categoryController->deleteCategory(req, res); });
+	srv.Delete("/categories", [this](const auto& req, auto& res) { categoryController->deleteCategories(req, res); });
+	srv.Delete("/categories/user",[this](const auto& req, auto& res) { categoryController->deleteUserCategories(req, res); });
+	srv.Delete("/categories/users", [this](const auto& req, auto& res) { categoryController->deleteUsersCategories(req, res); });
 }
 void Server::setupTaskRoutes() {
-	srv.Get("/tasks", [this](const auto& req, auto& res) {
-		taskController->getTasks(req, res);
-	});
-	srv.Get("/userTasks", [this](const auto& req, auto& res) {
-		taskController->getUserTasks(req, res);
-	});
-	srv.Get("/usersTasks", [this](const auto& req, auto& res) {
-		taskController->getUsersTasks(req, res);
-	});
-	srv.Get("/task", [this](const auto& req, auto& res) {
-		taskController->getTask(req, res);
-	});
-	srv.Post("/createTask", [this](const auto& req, auto& res) {
-		taskController->createTask(req, res);
-	});
-	srv.Post("/updateTask", [this](const auto& req, auto& res) {
-		taskController->updateTask(req, res);
-	});
-	srv.Post("/deleteTask", [this](const auto& req, auto& res) {
-		taskController->deleteTask(req, res);
-	});
-	srv.Post("/deleteTasks", [this](const auto& req, auto& res) {
-		taskController->deleteTasks(req, res);
-	});
-	srv.Post("/deleteUsersTasks", [this](const auto& req, auto& res) {
-		taskController->deleteUsersTasks(req, res);
-	});
-	srv.Post("/deleteUserTasks", [this](const auto& req, auto& res) {
-		taskController->deleteUserTasks(req, res);
-	});
+	srv.Get("/task", [this](const auto& req, auto& res) { taskController->getTask(req, res); });
+	srv.Get("/tasks", [this](const auto& req, auto& res) { taskController->getTasks(req, res); });
+	srv.Get("/tasks/user", [this](const auto& req, auto& res) { taskController->getUserTasks(req, res); });
+	srv.Get("/tasks/users", [this](const auto& req, auto& res) { taskController->getUsersTasks(req, res); });
+	srv.Post("/task", [this](const auto& req, auto& res) { taskController->createTask(req, res); });
+	srv.Put("/task", [this](const auto& req, auto& res) { taskController->updateTask(req, res); });
+	srv.Delete("/task", [this](const auto& req, auto& res) { taskController->deleteTask(req, res); });
+	srv.Delete("/tasks", [this](const auto& req, auto& res) { taskController->deleteTasks(req, res); });
+	srv.Delete("/tasks/user", [this](const auto& req, auto& res) { taskController->deleteUserTasks(req, res); });
+	srv.Delete("/tasks/users", [this](const auto& req, auto& res) { taskController->deleteUsersTasks(req, res); });
 }
 void Server::setupUserRoutes() {
-	srv.Get("/users", [this](const auto& req, auto& res) {
-		userController->getUsers(req, res);
-	});
-	srv.Get("/user", [this](const auto& req, auto& res) {
-		userController->getUser(req, res);
-	});
-	srv.Post("/createUser", [this](const auto& req, auto& res) {
-		userController->createUser(req, res);
-	});
-	srv.Post("/updateUser", [this](const auto& req, auto& res) {
-		userController->updateUser(req, res);
-	});
-	srv.Post("/deleteUser", [this](const auto& req, auto& res) {
-		userController->deleteUser(req, res);
-	});
-	srv.Post("/deleteUsers", [this](const auto& req, auto& res) {
-		userController->deleteUsers(req, res);
-	});
+	srv.Get("/user", [this](const auto& req, auto& res) { userController->getUser(req, res); });
+	srv.Get("/users", [this](const auto& req, auto& res) { userController->getUsers(req, res); });
+	srv.Post("/user", [this](const auto& req, auto& res) { userController->createUser(req, res); });
+	srv.Put("/user", [this](const auto& req, auto& res) { userController->updateUser(req, res); });
+	srv.Delete("/user", [this](const auto& req, auto& res) { userController->deleteUser(req, res); });
+	srv.Delete("/users", [this](const auto& req, auto& res) { userController->deleteUsers(req, res); });
 }
 Server::Server(const std::shared_ptr<session::Session>& session) {
 	try {
