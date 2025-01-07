@@ -25,13 +25,11 @@ void CategoryController::getCategories(const httplib::Request& req, httplib::Res
 			data["categories"] = json::array();
 			for (const auto& category: categories.value())
 				data["categories"].push_back(category.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Categories not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::getCategories error: " + std::string(e.what());
@@ -58,13 +56,11 @@ void CategoryController::getUserCategories(const httplib::Request& req, httplib:
 			data["categories"] = json::array();
 			for (const auto& category: categories.value())
 				data["categories"].push_back(category.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Categories not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::getUserCategories error: " + std::string(e.what());
@@ -92,13 +88,11 @@ void CategoryController::getUsersCategories(const httplib::Request& req, httplib
 			data["categories"] = json::array();
 			for (const auto& category: categories.value())
 				data["categories"].push_back(category.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Categories not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::getUsersCategories error: " + std::string(e.what());
@@ -123,13 +117,11 @@ void CategoryController::getCategory(const httplib::Request& req, httplib::Respo
 			category.has_value()) {
 			json data;
 			data["category"] = category.value().toJson();
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Category not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::getCategory error: " + std::string(e.what());
@@ -161,12 +153,10 @@ void CategoryController::createCategory(const httplib::Request& req, httplib::Re
 			json data;
 			data["category"] = newCategory.value().toJson();
 			response = createSuccessResponse("", data);
-			res.status = 201;
 		}
-		else {
+		else
 			response = createErrorResponse("Category not created");
-			res.status = 400;
-		}
+		res.status = 201;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::createCategory error: " + std::string(e.what());
@@ -202,12 +192,10 @@ void CategoryController::updateCategory(const httplib::Request& req, httplib::Re
 			json data;
 			data["category"] = updatedCategory.value().toJson();
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Category not updated");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::updateCategory error: " + std::string(e.what());
@@ -233,12 +221,10 @@ void CategoryController::deleteCategory(const httplib::Request& req, httplib::Re
 			json data;
 			data["id"] = deletedId;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Category not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::deleteCategory error: " + std::string(e.what());
@@ -265,12 +251,10 @@ void CategoryController::deleteCategories(const httplib::Request& req, httplib::
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Categories not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::deleteCategories error: " + std::string(e.what());
@@ -297,12 +281,10 @@ void CategoryController::deleteUsersCategories(const httplib::Request& req, http
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Categories not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::deleteUsersCategories error: " + std::string(e.what());
@@ -328,12 +310,10 @@ void CategoryController::deleteUserCategories(const httplib::Request& req, httpl
 			json data;
 			data["id"] = deletedId;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Categories not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "CategoryController::deleteUserCategories error: " + std::string(e.what());

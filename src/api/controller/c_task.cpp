@@ -25,13 +25,11 @@ void TaskController::getTasks(const httplib::Request& req, httplib::Response& re
 			data["tasks"] = json::array();
 			for (const auto& task: tasks.value())
 				data["tasks"].push_back(task.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Tasks not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::getTasks error: " + std::string(e.what());
@@ -58,13 +56,11 @@ void TaskController::getCategoryTasks(const httplib::Request& req, httplib::Resp
 			data["tasks"] = json::array();
 			for (const auto& task: tasks.value())
 				data["tasks"].push_back(task.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Tasks not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::getCategoryTasks error: " + std::string(e.what());
@@ -91,13 +87,11 @@ void TaskController::getUserTasks(const httplib::Request& req, httplib::Response
 			data["tasks"] = json::array();
 			for (const auto& task: tasks.value())
 				data["tasks"].push_back(task.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Tasks not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::getUserTasks error: " + std::string(e.what());
@@ -125,13 +119,11 @@ void TaskController::getCategoriesTasks(const httplib::Request& req, httplib::Re
 			data["tasks"] = json::array();
 			for (const auto& task: tasks.value())
 				data["tasks"].push_back(task.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Tasks not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::getCategoriesTasks error: " + std::string(e.what());
@@ -159,13 +151,11 @@ void TaskController::getUsersTasks(const httplib::Request& req, httplib::Respons
 			data["tasks"] = json::array();
 			for (const auto& task: tasks.value())
 				data["tasks"].push_back(task.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Tasks not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::getUsersTasks error: " + std::string(e.what());
@@ -191,13 +181,11 @@ void TaskController::getTask(const httplib::Request& req, httplib::Response& res
 			task.has_value()) {
 			json data;
 			data["task"] = task.value().toJson();
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Task not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::getTask error: " + std::string(e.what());
@@ -232,12 +220,10 @@ void TaskController::createTask(const httplib::Request& req, httplib::Response& 
 			json data;
 			data["task"] = createdTask.value().toJson();
 			response = createSuccessResponse("", data);
-			res.status = 201;
 		}
-		else {
+		else
 			response = createErrorResponse("Task not created");
-			res.status = 400;
-		}
+		res.status = 201;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::createTask error: " + std::string(e.what());
@@ -276,12 +262,10 @@ void TaskController::updateTask(const httplib::Request& req, httplib::Response& 
 			json data;
 			data["task"] = updatedTask.value().toJson();
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Task not updated");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::updateTask error: " + std::string(e.what());
@@ -307,12 +291,10 @@ void TaskController::deleteTask(const httplib::Request& req, httplib::Response& 
 			json data;
 			data["id"] = deletedId;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Task not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::deleteTask error: " + std::string(e.what());
@@ -339,12 +321,10 @@ void TaskController::deleteTasks(const httplib::Request& req, httplib::Response&
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Tasks not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::deleteTasks error: " + std::string(e.what());
@@ -371,12 +351,10 @@ void TaskController::deleteCategoriesTasks(const httplib::Request& req, httplib:
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Tasks not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::deleteCategoriesTasks error: " + std::string(e.what());
@@ -403,12 +381,10 @@ void TaskController::deleteCategoryTasks(const httplib::Request& req, httplib::R
 			json data;
 			data["id"] = deletedIds;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Tasks not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::deleteCategoryTasks error: " + std::string(e.what());
@@ -435,12 +411,10 @@ void TaskController::deleteUsersTasks(const httplib::Request& req, httplib::Resp
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Tasks not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::deleteUsersTasks error: " + std::string(e.what());
@@ -467,12 +441,10 @@ void TaskController::deleteUserTasks(const httplib::Request& req, httplib::Respo
 			json data;
 			data["ids"] = deletedIds;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Tasks not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "TaskController::deleteUserTasks error: " + std::string(e.what());

@@ -25,13 +25,11 @@ void UserController::getUsers(const httplib::Request& req, httplib::Response& re
 			data["users"] = json::array();
 			for (const auto& user: users.value())
 				data["users"].push_back(user.toJson());
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("Users not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::getUsers error: " + std::string(e.what());
@@ -55,13 +53,11 @@ void UserController::getUser(const httplib::Request& req, httplib::Response& res
 		if (const auto user = userService->getUser(id); user.has_value()) {
 			json data;
 			data["user"] = user.value().toJson();
-			res.status = 200;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 404;
+		else
 			response = createErrorResponse("User not found");
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::getUser error: " + std::string(e.what());
@@ -91,13 +87,11 @@ void UserController::createUser(const httplib::Request& req, httplib::Response& 
 			newUser.has_value()) {
 			json data;
 			data["user"] = newUser.value().toJson();
-			res.status = 201;
 			response = createSuccessResponse("", data);
 		}
-		else {
-			res.status = 400;
+		else
 			response = createErrorResponse("User not created");
-		}
+		res.status = 201;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::createUser error: " + std::string(e.what());
@@ -131,12 +125,10 @@ void UserController::updateUser(const httplib::Request& req, httplib::Response& 
 			json data;
 			data["user"] = newUser.value().toJson();
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("User not updated");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::updateUser error: " + std::string(e.what());
@@ -162,12 +154,10 @@ void UserController::deleteUser(const httplib::Request& req, httplib::Response& 
 			json data;
 			data["id"] = deletedId;
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("User not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::deleteUser error: " + std::string(e.what());
@@ -196,12 +186,10 @@ void UserController::deleteUsers(const httplib::Request& req, httplib::Response&
 			for (const auto& id: deletedIds)
 				data["ids"].push_back(id);
 			response = createSuccessResponse("", data);
-			res.status = 200;
 		}
-		else {
+		else
 			response = createErrorResponse("Users not deleted");
-			res.status = 400;
-		}
+		res.status = 200;
 	}
 	catch (std::exception& e) {
 		const std::string message =  "UserController::deleteUsers error: " + std::string(e.what());
